@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { connectDB } from './config/connectDB.js';
 import adminRouter from './routes/admin.routes.js';
+import viewRouter from './routes/view.routes.js';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(cookieParser());
 
 //router
+app.use('/view', viewRouter);
 app.use('/admin', adminRouter);
 
 app.get('/', (req, res) => {
