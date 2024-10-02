@@ -20,7 +20,7 @@ app.use('/view', viewRouter);
 app.use('/admin', adminRouter);
 
 app.get('/', (req, res) => {
-    res.status(200).json({message: "Welcome to Admin Dashboard of your portfolio."});
+    res.status(200).json({message: "Welcome to the Admin Dashboard of your portfolio."});
 })
 
 connectDB()
