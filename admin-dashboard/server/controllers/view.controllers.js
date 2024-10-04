@@ -1,3 +1,5 @@
+// to be deleted
+
 export const getInfo = (req, res) => {
     res.status(200).json({message: "Info retrieved successfully."});
 }

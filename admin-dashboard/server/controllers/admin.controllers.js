@@ -1,3 +1,5 @@
+// to be deleted
+
 export const loginAdmin = (req, res) => {
     res.status(200).json({message: "Logged in successfully."});
 }

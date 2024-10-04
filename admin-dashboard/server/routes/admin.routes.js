@@ -1,3 +1,5 @@
+// to be deleted
+
 import express from 'express';
 import { loginAdmin, logoutAdmin, registerAdmin, editInfo, editSkills, editProjects, editExperience } from '../controllers/admin.controllers.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';

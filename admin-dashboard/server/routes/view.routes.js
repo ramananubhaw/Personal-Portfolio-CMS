@@ -1,3 +1,5 @@
+// to be deleted
+
 import express from 'express';
 import { getInfo, getSkills, getProjects, getExperience, getProfiles } from '../controllers/view.controllers.js';
 
