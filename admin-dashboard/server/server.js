@@ -9,15 +9,21 @@ import { connectDB } from './config/connectDB.js';
 import adminRouter from './routes/admin.routes.js'; // to be deleted
 import viewRouter from './routes/view.routes.js'; // to be deleted
 
-import { typeDefsDemo } from './graphql/typeDefsDemo.js';
-import { resolversDemo } from './graphql/resolversDemo.js';
+import { typeDefsDemo } from './graphql/typeDefsDemo.js'; // to be deleted
+import { resolversDemo } from './graphql/resolversDemo.js'; // to be deleted
+
+import { typeDefs } from './graphql/typeDefs.js';
+import { resolvers } from './graphql/resolvers.js';
 
 dotenv.config();
 
 const port = process.env.PORT || 3000;
 const app = express();
 
-const apolloServer = new ApolloServer({typeDefs: typeDefsDemo, resolvers: resolversDemo});
+const apolloServer = new ApolloServer({
+    typeDefs: typeDefs,
+    resolvers: resolvers
+});
 
 //server configuration
 app.use(cors());

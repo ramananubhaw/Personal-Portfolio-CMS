@@ -1,6 +1,5 @@
 export const adminTypeDefs = `
     type Admin {
-        id: ID!
         name: String!
         email: String!
         dob: String!
@@ -18,13 +17,13 @@ export const adminTypeDefs = `
     }
 
     extend type Query {
-        getAdmin(id: ID!): Admin
+        getAdmin(email: String!): Admin
         getAllAdmins: [Admin]
     }
 
     extend type Mutation {
         createAdmin(input: AdminInput!): Admin
-        updateAdmin(id: ID!, input: AdminInput!): Admin
-        deleteAdmin(id: ID!): Boolean
+        updateAdmin(email: ID!, input: AdminInput!): Admin
+        deleteAdmin(email: ID!): Boolean
     }
 `;
