@@ -22,6 +22,6 @@ export const skillTypeDefs = `
     extend type Mutation {
         createSkill(input: SkillInput!): Skill
         updateSkill(id: ID!, input: SkillInput!): Skill
-        deleteSkill(id: ID!): Boolean
+        deleteSkill(id: ID!): DeleteResponse
     }
 `;

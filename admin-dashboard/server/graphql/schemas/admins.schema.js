@@ -34,6 +34,6 @@ export const adminTypeDefs = `
     extend type Mutation {
         createAdmin(input: AdminInput!): Admin
         updateAdmin(email: ID!, input: AdminUpdateInput!): Admin
-        deleteAdmin(email: ID!): Boolean
+        deleteAdmin(email: ID!): DeleteResponse
     }
 `;

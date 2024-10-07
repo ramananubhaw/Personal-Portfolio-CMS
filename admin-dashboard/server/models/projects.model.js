@@ -23,7 +23,7 @@ const projectSchema = new mongoose.Schema({
             message: "Description should be 50 words or less."
         }
     },
-    tools_used: {
+    toolsUsed: {
         type: [String],
         required: true
     },

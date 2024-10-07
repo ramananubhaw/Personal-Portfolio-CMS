@@ -1,12 +1,12 @@
 export const experienceTypeDefs = `
     type Experience {
-        id: ID!
+        serialNo: Int!
         mode: String!
         role: String!
         category: String!
-        company_name: String!
+        companyName: String!
         duration: Duration!
-        company_address: String!
+        companyAddress: String!
     }
 
     type Duration {
@@ -22,22 +22,31 @@ export const experienceTypeDefs = `
     }
 
     input ExperienceInput {
+        serialNo: Int!
         mode: String!
         role: String!
         category: String!
-        company_name: String!
+        companyName: String!
         duration: DurationInput!
-        company_address: String!
+        companyAddress: String!
+    }
+
+    input ExperienceUpdateInput {
+        mode: String
+        role: String
+        category: String
+        companyName: String
+        duration: DurationInput
+        companyAddress: String
     }
 
     extend type Query {
-        getExperience(id: ID!): Experience
         getAllExperiences: [Experience]
     }
 
     extend type Mutation {
         createExperience(input: ExperienceInput!): Experience
-        updateExperience(id: ID!, input: ExperienceInput!): Experience
-        deleteExperience(id: ID!): Boolean
+        updateExperience(serialNo: Int!, input: ExperienceUpdateInput!): Experience
+        deleteExperience(serialNo: Int!): DeleteResponse
     }
 `;

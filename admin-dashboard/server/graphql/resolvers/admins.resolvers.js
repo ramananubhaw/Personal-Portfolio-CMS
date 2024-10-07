@@ -87,7 +87,7 @@ export const adminResolvers = {
                     throw new Error("Admin does not exist");
                 }
                 await admins.findOneAndDelete({email: email});
-                return true;
+                return { deleted: true, message: "Admin deleted" };
             }
             catch (error) {
                 console.log(error.message);

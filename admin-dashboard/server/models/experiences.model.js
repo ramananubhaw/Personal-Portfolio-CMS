@@ -5,6 +5,11 @@ function wordCount(value) {
 }
 
 const experienceSchema = new mongoose.Schema({
+    serialNo: {
+        type: Number,
+        required: true,
+        unique: true
+    },
     mode: {
         type: String,
         required: true,
@@ -19,7 +24,7 @@ const experienceSchema = new mongoose.Schema({
         required: true,
         enum: ['Full-time', 'Internship', 'Contractual', 'Freelance', 'Club']
     },
-    company_name: {
+    companyName: {
         type: String,
         required: true
     },
@@ -31,7 +36,7 @@ const experienceSchema = new mongoose.Schema({
         endDate: {
             type: Date,
             required: function () {
-                return !this.isCurrent;
+                return !this.duration.isCurrent;
             }
         },
         isCurrent: {
@@ -39,7 +44,7 @@ const experienceSchema = new mongoose.Schema({
             default: false
         }
     },
-    company_address: {
+    companyAddress: {
         type: String,
         required: true,
         validate: {
