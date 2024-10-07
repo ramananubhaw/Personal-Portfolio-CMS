@@ -22,6 +22,6 @@ export const projectTypeDefs = `
     extend type Mutation {
         createProject(input: ProjectInput!): Project
         updateProject(id: ID!, input: ProjectInput!): Project
-        deleteProject(id: ID!): Boolean
+        deleteProject(id: ID!): DeleteResponse
     }
 `;

@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const accountSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true
+    },
     platform: {
         type: String,
         required: true,
@@ -18,11 +22,6 @@ const accountSchema = new mongoose.Schema({
     }
 });
 
-// Main schema to store an array of social media links
-const profileSchema = new mongoose.Schema({
-    accountLinks: [accountSchema]
-});
+const accounts = mongoose.model('accounts', accountSchema);
 
-const profiles = mongoose.model('profiles', profileSchema);
-
-export default profiles;
+export default accounts;

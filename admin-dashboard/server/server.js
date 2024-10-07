@@ -9,9 +9,6 @@ import { connectDB } from './config/connectDB.js';
 import adminRouter from './routes/admin.routes.js'; // to be deleted
 import viewRouter from './routes/view.routes.js'; // to be deleted
 
-import { typeDefsDemo } from './graphql/typeDefsDemo.js'; // to be deleted
-import { resolversDemo } from './graphql/resolversDemo.js'; // to be deleted
-
 import { typeDefs } from './graphql/typeDefs.js';
 import { resolvers } from './graphql/resolvers.js';
 
