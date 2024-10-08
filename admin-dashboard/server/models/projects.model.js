@@ -23,7 +23,7 @@ const projectSchema = new mongoose.Schema({
             message: "Description should be 50 words or less."
         }
     },
-    toolsUsed: {
+    techStack: {
         type: [String],
         required: true
     },
@@ -34,6 +34,9 @@ const projectSchema = new mongoose.Schema({
             validator: isValidGitHubURL,
             message: "Link must be a valid GitHub URL."
         }
+    },
+    deployment: {
+        type: String
     }
 });
 

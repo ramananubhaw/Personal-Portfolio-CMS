@@ -8,14 +8,11 @@ const skillSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: true
-    },
-    experience: {
-        type: Number,
-        default: 0
+        required: true,
+        enum: ['Frontend Development', 'Backend Development', 'Full-stack Development', 'DevOps', 'AI/ML/DL', 'Data Science', 'Blockchain', 'Programming Language(s)', 'CyberSecurity', 'Other' ]
     },
     certifications: {
-        type: [String],
+        type: [String]
     }
 });
 

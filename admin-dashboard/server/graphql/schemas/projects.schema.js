@@ -1,27 +1,35 @@
 export const projectTypeDefs = `
     type Project {
-        id: ID!
         name: String!
         description: String!
-        tools_used: [String!]!
+        techStack: [String!]!
         link: String!
+        deployment: String
     }
 
     input ProjectInput {
         name: String!
         description: String!
-        tools_used: [String!]!
+        techStack: [String!]!
         link: String!
+        deployment: String
+    }
+
+    input ProjectUpdateInput {
+        description: String
+        techStack: [String]
+        link: String
+        deployment: String
     }
 
     extend type Query {
-        getProject(id: ID!): Project
+        getProject(name: ID!): Project
         getAllProjects: [Project]
     }
 
     extend type Mutation {
         createProject(input: ProjectInput!): Project
-        updateProject(id: ID!, input: ProjectInput!): Project
-        deleteProject(id: ID!): DeleteResponse
+        updateProject(name: ID!, input: ProjectUpdateInput!): Project
+        deleteProject(name: ID!): DeleteResponse
     }
 `;

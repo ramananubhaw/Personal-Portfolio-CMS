@@ -3,25 +3,28 @@ export const skillTypeDefs = `
         id: ID!
         name: String!
         category: String!
-        experience: Int
-        certifications: [String!]
+        certifications: [String]
     }
 
     input SkillInput {
         name: String!
         category: String!
-        experience: Int
-        certifications: [String!]
+        certifications: [String]
+    }
+
+    input SkillUpdateInput {
+        category: String
+        certification: [String]
     }
 
     extend type Query {
-        getSkill(id: ID!): Skill
+        getSkill(name: ID!): Skill
         getAllSkills: [Skill]
     }
 
     extend type Mutation {
         createSkill(input: SkillInput!): Skill
-        updateSkill(id: ID!, input: SkillInput!): Skill
-        deleteSkill(id: ID!): DeleteResponse
+        updateSkill(name: ID!, input: SkillUpdateInput!): Skill
+        deleteSkill(name: ID!): DeleteResponse
     }
 `;
