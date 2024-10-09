@@ -17,6 +17,21 @@ export const adminTypeDefs = `
         password: String!
     }
 
+    input AdminLoginInput {
+        username: ID!
+        password: String!
+    }
+    
+    type LoginResponse {
+        message: String!
+        loggedIn: Boolean!
+    }
+
+    type LogoutResponse {
+        message: String!
+        loggedOut: Boolean!
+    }
+
     input AdminUpdateInput {
         name: String
         email: String
@@ -35,5 +50,7 @@ export const adminTypeDefs = `
         createAdmin(input: AdminInput!): Admin
         updateAdmin(email: ID!, input: AdminUpdateInput!): Admin
         deleteAdmin(email: ID!): DeleteResponse
+        adminLogin(input: AdminLoginInput!): LoginResponse
+        adminLogout: LogoutResponse
     }
 `;

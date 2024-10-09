@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 export const authenticateToken = (req, res, next) => {
-    if (!req.cookies || !req.cookies.access_token) {
+    if (!req.cookies || !req.cookies.accessToken) {
         if (req.path === "/logout") {
             res.status(401).json({message: "Logged out already."});
         }
@@ -10,7 +10,7 @@ export const authenticateToken = (req, res, next) => {
         }
         return;
     }
-    const token = req.cookies.access_token;
+    const token = req.cookies.accessToken;
     jwt.verify(token, process.env.SECRET_ACCESS_TOKEN, (error, decoded) => {
         if (error){
             res.status(401).json({message: "Authorization failed."});
