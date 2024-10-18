@@ -1,19 +1,20 @@
 import admins from '../../models/admins.model.js';
 import { hashPassword } from '../../middlewares/hashPassword.js';
 import { verifyPassword } from '../../middlewares/verifyPassword.js';
-// import { authError } from '../errors/authError.js';
+import { authenticateToken } from '../../middlewares/authenticateToken.js';
 import jwt from 'jsonwebtoken';
-import { loginError } from '../errors/loginError.js';
-import { authError } from '../errors/authError.js';
+import { loginError, alreadyAuthenticatedError, invalidPasswordChangeRequest, notFoundError, noUpdateNeededError } from '../errors.js';
 
 export const adminResolvers = {
     Query: {
-        getAdmin: async (_, {email}, {req}) => {
+        getAdmin: async (_, __, {req}) => {
+            authenticateToken(req);
             try {
-                console.log(req.cookies);
+                // console.log(req.admin);
+                const email = req.admin.email;
                 const admin = await admins.findOne({email: email});
                 if (!admin) {
-                    throw new Error("Admin does not exist")
+                    throw new notFoundError
                 }
                 return admin;
             }
@@ -23,11 +24,12 @@ export const adminResolvers = {
             }
         },
 
-        getAllAdmins: async () => {
+        getAllAdmins: async (_, __, {req}) => {
+            authenticateToken(req);
             try {
                 const allAdmins = await admins.find();
                 if (allAdmins.length === 0) {
-                    throw new Error("No admins registered");
+                    throw notFoundError;
                 }
                 return allAdmins;
             }
@@ -39,7 +41,8 @@ export const adminResolvers = {
     },
 
     Mutation: {
-        createAdmin: async (_, {input}) => {
+        createAdmin: async (_, {input}, {req}) => {
+            authenticateToken(req);
             try {
                 const admin = await admins.findOne({email: input.email});
                 if (admin) {
@@ -59,15 +62,19 @@ export const adminResolvers = {
             }
         },
 
-        updateAdmin: async (_, {email, input}) => {
+        updateAdmin: async (_, {input}, {req}) => {
+            authenticateToken(req);
             try {
+                console.log(req.admin);
+                const email = req.admin.email;
                 const admin = await admins.findOne({email: email});
                 if (!admin) {
-                    throw new Error("No admin registered with this Email Id");
+                    throw notFoundError;
                 }
                 if (input.password) {
-                    console.log("Change Password is a separate Mutation of Admin");
-                    delete input.password;
+                    // console.log("Change Password is a separate Mutation of Admin");
+                    // delete input.password;
+                    throw invalidPasswordChangeRequest;
                 }
                 for (const key in input) {
                     if (input[key] === admin[key]) {
@@ -75,7 +82,7 @@ export const adminResolvers = {
                     }
                 }
                 if (Object.keys(input).length === 0) {
-                    throw new Error("No update requested");
+                    throw noUpdateNeededError;
                 }
                 const updatedAdmin = await admins.findOneAndUpdate({email: email}, input, {new: true});
                 return updatedAdmin;
@@ -86,11 +93,15 @@ export const adminResolvers = {
             }
         },
 
-        deleteAdmin: async (_, {email}) => {
+        deleteAdmin: async (_, {email}, {req, res}) => {
+            authenticateToken(req);
             try {
                 const admin = await admins.findOne({ email: email });
                 if (!admin) {
-                    throw new Error("Admin does not exist");
+                    throw notFoundError;
+                }
+                if (req.admin.email === admin.email) {
+                    res.clearCookie("accessToken");
                 }
                 await admins.findOneAndDelete({email: email});
                 return { deleted: true, message: "Admin deleted" };
@@ -101,8 +112,11 @@ export const adminResolvers = {
             }
         },
 
-        adminLogin: async (_, {input}, {res}) => {
+        adminLogin: async (_, {input}, {req, res}) => {
             try {
+                if (req.cookies.accessToken) {
+                    throw alreadyAuthenticatedError;
+                }
                 const admin = await admins.findOne({email: input.username}, {hashedPassword: 1, name: 1, email: 1, _id: 0});
                 if (!admin || !admin.hashedPassword) {
                     throw loginError;
@@ -114,35 +128,32 @@ export const adminResolvers = {
 
                 const accessToken = jwt.sign({
                     admin: {
-                        username: admin.email,
+                        email: admin.email,
                         name: admin.name
                     }
                 }, process.env.JWT_SECRET, {
-                    expiresIn: process.env.JWT_EXPIRY_TIME // increase expiration time for JWT token in production
+                    expiresIn: process.env.JWT_EXPIRY_TIME
                 });
 
                 res.cookie("accessToken", accessToken, {
                     httpOnly: true,
                     // secure: true,
                     // sameSite: "strict",
-                    maxAge: process.env.AUTH_COOKIE_EXPIRY_TIME // increase expiration time of cookie in production
+                    maxAge: process.env.AUTH_COOKIE_EXPIRY_TIME  // increase expiration time of cookie in production
                 });
 
                 return {message: "Logged in", loggedIn: true};
             }
             catch (error) {
                 console.log(error.message);
-                res.status(401);
                 throw error;
             }
         },
 
-        adminLogout: async (_, __, {req, res}) => {
+        adminLogout: (_, __, {req, res}) => {
+            authenticateToken(req);
             try {
-                // console.log(req.cookies)
-                if (!req.cookies || !req.cookies.accessToken) {
-                    throw authError;
-                }
+                console.log(req.admin);
                 res.clearCookie("accessToken");
                 return {message: "Logged out", loggedOut: true};
             }

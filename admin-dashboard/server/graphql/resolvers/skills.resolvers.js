@@ -1,10 +1,11 @@
 import skills from '../../models/skills.model.js';
+import { authenticateToken } from '../../middlewares/authenticateToken.js';
 
 export const skillResolvers = {
     Query: {
-        getSkill: async (_, {name}) => {
+        getSkill: async (_, { name }) => {
             try {
-                const skill = await skills.findOne({name: name});
+                const skill = await skills.findOne({ name });
                 if (!skill) {
                     throw new Error("Skill not added");
                 }
@@ -32,9 +33,10 @@ export const skillResolvers = {
     },
 
     Mutation: {
-        createSkill: async (_, {input}) => {
+        createSkill: async (_, { input }, { req }) => {
+            authenticateToken(req);
             try {
-                const skill = await skills.findOne({name: input.name});
+                const skill = await skills.findOne({ name: input.name });
                 if (skill) {
                     throw new Error("Skill already added.");
                 }
@@ -47,9 +49,10 @@ export const skillResolvers = {
             }
         },
 
-        updateSkill: async (_, {name, input}) => {
+        updateSkill: async (_, { name, input }, { req }) => {
+            authenticateToken(req);
             try {
-                const skill = await skills.findOne({name: name});
+                const skill = await skills.findOne({ name });
                 if (!skill) {
                     throw new Error("Skill not added");
                 }
@@ -61,7 +64,7 @@ export const skillResolvers = {
                 if (Object.keys(input).length === 0) {
                     throw new Error("No update requested");
                 }
-                const updatedSkill = await skills.findOneAndUpdate({name: name}, input, {new: true});
+                const updatedSkill = await skills.findOneAndUpdate({ name }, input, { new: true });
                 return updatedSkill;
             }
             catch (error) {
@@ -70,13 +73,14 @@ export const skillResolvers = {
             }
         },
 
-        deleteSkill: async (_, {name}) => {
+        deleteSkill: async (_, { name }, { req }) => {
+            authenticateToken(req);
             try {
-                const skill = await skills.findOne({ name: name });
+                const skill = await skills.findOne({ name });
                 if (!skill) {
                     throw new Error("Skill not added");
                 }
-                await skills.findOneAndDelete({name: name});
+                await skills.findOneAndDelete({ name });
                 return { deleted: true, message: "Skill removed from portfolio" };
             }
             catch (error) {
@@ -85,4 +89,4 @@ export const skillResolvers = {
             }
         }
     }
-}
+};

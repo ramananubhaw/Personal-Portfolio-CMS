@@ -1,22 +1,15 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+import { authError } from '../graphql/errors.js';
 
-export const authenticateToken = (req, res, next) => {
-    if (!req.cookies || !req.cookies.accessToken) {
-        if (req.path === "/logout") {
-            res.status(401).json({message: "Logged out already."});
-        }
-        else {
-            res.status(401).json({message: "Token expired."});
-        }
-        return;
+export const authenticateToken = (req, res) => {
+    const token = req.cookies?.accessToken;
+    if (!token) {
+        throw authError;
     }
-    const token = req.cookies.accessToken;
-    jwt.verify(token, process.env.SECRET_ACCESS_TOKEN, (error, decoded) => {
-        if (error){
-            res.status(401).json({message: "Authorization failed."});
-            return;
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            throw authError;
         }
-        req.admin = decoded;
-        next();
+        req.admin = decoded.admin;
     });
 };
