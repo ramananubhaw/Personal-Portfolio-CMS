@@ -42,13 +42,13 @@ export const adminTypeDefs = `
     }
 
     extend type Query {
-        getAdmin(email: String!): Admin
+        getAdmin: Admin
         getAllAdmins: [Admin]
     }
 
     extend type Mutation {
         createAdmin(input: AdminInput!): Admin
-        updateAdmin(email: ID!, input: AdminUpdateInput!): Admin
+        updateAdmin(input: AdminUpdateInput!): Admin
         deleteAdmin(email: ID!): DeleteResponse
         adminLogin(input: AdminLoginInput!): LoginResponse
         adminLogout: LogoutResponse

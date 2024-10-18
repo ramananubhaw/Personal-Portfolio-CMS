@@ -1,10 +1,11 @@
 import projects from '../../models/projects.model.js';
+import { authenticateToken } from '../../middlewares/authenticateToken.js';
 
 export const projectResolvers = {
     Query: {
-        getProject: async (_, {name}) => {
+        getProject: async (_, { name }) => {
             try {
-                const project = await projects.findOne({name: name});
+                const project = await projects.findOne({ name });
                 if (!project) {
                     throw new Error("Project with this name not added");
                 }
@@ -32,9 +33,10 @@ export const projectResolvers = {
     },
 
     Mutation: {
-        createProject: async (_, {input}) => {
+        createProject: async (_, { input }, { req }) => {
+            authenticateToken(req);
             try {
-                const project = await projects.findOne({name: input.name});
+                const project = await projects.findOne({ name: input.name });
                 if (project) {
                     throw new Error("Project with this name already added.");
                 }
@@ -47,9 +49,10 @@ export const projectResolvers = {
             }
         },
 
-        updateProject: async (_, {name, input}) => {
+        updateProject: async (_, { name, input }, { req }) => {
+            authenticateToken(req);
             try {
-                const project = await projects.findOne({name: name});
+                const project = await projects.findOne({ name });
                 if (!project) {
                     throw new Error("Project not added");
                 }
@@ -61,7 +64,7 @@ export const projectResolvers = {
                 if (Object.keys(input).length === 0) {
                     throw new Error("No update requested");
                 }
-                const updatedProject = await projects.findOneAndUpdate({name: name}, input, {new: true});
+                const updatedProject = await projects.findOneAndUpdate({ name }, input, { new: true });
                 return updatedProject;
             }
             catch (error) {
@@ -70,13 +73,14 @@ export const projectResolvers = {
             }
         },
 
-        deleteProject: async (_, {name}) => {
+        deleteProject: async (_, { name }, { req }) => {
+            authenticateToken(req);
             try {
-                const project = await projects.findOne({ name: name });
+                const project = await projects.findOne({ name });
                 if (!project) {
                     throw new Error("Project not added");
                 }
-                await projects.findOneAndDelete({name: name});
+                await projects.findOneAndDelete({ name });
                 return { deleted: true, message: "Project removed from portfolio" };
             }
             catch (error) {
@@ -85,4 +89,4 @@ export const projectResolvers = {
             }
         }
     }
-}
+};

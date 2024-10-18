@@ -1,10 +1,11 @@
 import accounts from '../../models/accounts.model.js';
+import { authenticateToken } from '../../middlewares/authenticateToken.js';
 
 export const accountResolvers = {
     Query: {
-        getAccount: async (_, {platform, username}) => {
+        getAccount: async (_, { platform, username }, { req }) => {
             try {
-                const account = await accounts.findOne({platform: platform, username: username});
+                const account = await accounts.findOne({ platform, username });
                 if (!account) {
                     throw new Error("Account not found");
                 }
@@ -16,7 +17,7 @@ export const accountResolvers = {
             }
         },
 
-        getAllAccounts: async () => {
+        getAllAccounts: async (_, __, { req }) => {
             try {
                 const allAccounts = await accounts.find();
                 if (allAccounts.length === 0) {
@@ -32,7 +33,8 @@ export const accountResolvers = {
     },
 
     Mutation: {
-        addAccount: async (_, {input}) => {
+        addAccount: async (_, { input }, { req }) => {
+            authenticateToken(req);
             try {
                 const account = await accounts.findOne(input);
                 if (account) {
@@ -47,19 +49,24 @@ export const accountResolvers = {
             }
         },
 
-        updateAccount: async (_, {input}) => {
+        updateAccount: async (_, { input }, { req }) => {
+            authenticateToken(req);
             try {
                 if (!input.link) {
                     throw new Error("No update requested");
                 }
-                const account = await accounts.findOne({platform: input.platform, username: input.username});
+                const account = await accounts.findOne({ platform: input.platform, username: input.username });
                 if (!account) {
                     throw new Error("Account not added");
                 }
                 if (account.link === input.link) {
                     throw new Error("Nothing to update");
                 }
-                const updatedAccount = await accounts.findOneAndUpdate({platform: input.platform, username: input.username}, {link: input.link}, {new: true});
+                const updatedAccount = await accounts.findOneAndUpdate(
+                    { platform: input.platform, username: input.username },
+                    { link: input.link },
+                    { new: true }
+                );
                 return updatedAccount;
             }
             catch (error) {
@@ -68,13 +75,14 @@ export const accountResolvers = {
             }
         },
 
-        deleteAccount: async (_, {platform, username}) => {
+        deleteAccount: async (_, { platform, username }, { req }) => {
+            authenticateToken(req);
             try {
-                const account = await accounts.findOne({ platform: platform, username: username });
+                const account = await accounts.findOne({ platform, username });
                 if (!account) {
                     throw new Error("Account not added");
                 }
-                await accounts.findOneAndDelete({platform: platform, username: username});
+                await accounts.findOneAndDelete({ platform, username });
                 return { deleted: true, message: "Account removed" };
             }
             catch (error) {
@@ -83,4 +91,4 @@ export const accountResolvers = {
             }
         }
     }
-}
+};
