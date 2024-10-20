@@ -14,7 +14,11 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 //server configuration
-app.use(cors());
+app.use(cors({
+    origin: [process.env.ADMIN_FRONTEND],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
