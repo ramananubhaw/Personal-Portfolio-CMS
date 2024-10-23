@@ -1,0 +1,75 @@
+import { ReactNode } from "react";
+import Icon from "./Icon";
+import Profile from "../assets/profile.svg";
+import Experience from "../assets/experience.svg";
+import Accounts from "../assets/accounts.svg";
+import Skills from "../assets/skills.svg";
+import Projects from "../assets/projects.svg";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "./ui/sidebar";
+
+const items: {title: string, url: string, icon: ReactNode}[] = [
+  {
+    title: "Personal Info",
+    url: "info",
+    icon: <Icon src={Profile} />
+  },
+  {
+    title: "Projects",
+    url: "projects",
+    icon: <Icon src={Projects} />
+  },
+  {
+    title: "Experiences",
+    url: "experiences",
+    icon: <Icon src={Experience} />
+  },
+  {
+    title: "Skills",
+    url: "skills",
+    icon: <Icon src={Skills} />
+  },
+  {
+    title: "Accounts",
+    url: "accounts",
+    icon: <Icon src={Accounts} />
+  },
+]
+
+export function AppSidebar({displayPage, activePage}: {displayPage: (page: string) => void; activePage: string;}) {
+
+  const isActive = (url: string): boolean => url === activePage;
+
+  return (
+    <Sidebar className="text-black font-medium shadow-xl">
+      <SidebarContent className="bg-white">
+        <SidebarGroup className="bg-inherit">
+          <SidebarGroupLabel className="w-full text-black text-2xl font-bold mt-3 mb-5 bg-inherit flex items-center justify-center">Admin Dashboard</SidebarGroupLabel>
+          <SidebarGroupContent className="bg-inherit">
+            <SidebarMenu className="bg-inherit">
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title} className="w-full bg-inherit my-1">
+                  <SidebarMenuButton className={`w-full cursor-pointer ${isActive(item.url) ? "bg-gray-200" : "bg-inherit"} hover:bg-gray-200`} onClick={() => displayPage(item.url)}>
+                    <span className="w-full text-left pl-2 bg-inherit text-base flex items-center py-px">
+                      <div className="bg-inherit mr-2">{item.icon}</div>
+                      <div className="bg-inherit flex-auto text-lg">{item.title}</div>
+                    </span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  )
+}
