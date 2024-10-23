@@ -1,13 +1,53 @@
-import { AppSidebar } from "./components/Sidebar"
-import { SidebarProvider } from "./components/ui/sidebar"
+import { useState } from "react";
+import Sidebar from "./components/Sidebar";
+import Info from "./components/Info";
+import Projects from "./components/Projects";
+import Skills from "./components/Skills";
+import Experiences from "./components/Experiences";
+import Accounts from "./components/Accounts";
 
 function App() {
+
+  type ShowPage = {
+    info: boolean,
+    projects: boolean,
+    skills: boolean,
+    experiences: boolean,
+    accounts: boolean
+  }
+
+  const [showPage, setShowPage] = useState<ShowPage> ({
+    info: true,
+    projects: false,
+    skills: false,
+    experiences: false,
+    accounts: false
+  })
+
+  const [activePage, setActivePage] = useState<string>("info");
+
+  function displayPage(page: string) {
+    setActivePage(page);
+    setShowPage((prevState: ShowPage) => ({
+      ...prevState,
+      info: false,
+      projects: false,
+      skills: false,
+      experiences: false,
+      accounts: false,
+      [page]: true
+    }));
+  }
+
   return (
-    <>
-      <SidebarProvider>
-        <AppSidebar />
-      </SidebarProvider>
-    </>
+    <div className="flex">
+      <Sidebar displayPage={displayPage} activePage={activePage} />
+      {showPage.info && <Info />}
+      {showPage.projects && <Projects />}
+      {showPage.skills && <Skills />}
+      {showPage.experiences && <Experiences />}
+      {showPage.accounts && <Accounts />}
+    </div>
   )
 }
 
