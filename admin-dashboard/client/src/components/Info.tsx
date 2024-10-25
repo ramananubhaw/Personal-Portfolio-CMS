@@ -3,6 +3,9 @@ import NotAvailable from "./NotAvailable";
 import FormElement from "./FormElement";
 import DeleteButton from "./DeleteButton";
 import EditButton from "./EditButton";
+import SaveButton from "./SaveButton";
+import DisplayCard from "./DisplayCard";
+import { Button } from "./ui/button";
 
 export default function Info() {
 
@@ -24,14 +27,25 @@ export default function Info() {
 
     const noInfo: boolean = Object.values(personalInfo).every((field) => field === null);
 
+    const [editing, setEditing] = useState<boolean> (false);
+
+    function handleButtonClick() {
+        setEditing(!editing);
+    }
+
+    const [credentialsChange, setCredentialsChange] = useState<{email: boolean, password: boolean}> ({
+        email: false,
+        password: false
+    })
+
     return noInfo ? (
         <>
             <NotAvailable message="No personal information added" button="Add Personal Info" />
         </>
     ) : (
-        <div className="w-full h-screen flex justify-center items-center">
+        <div className="w-full h-screen flex flex-col justify-center gap-y-16 items-center">
             <div className="w-1/2 flex h-5/12">
-                <div className="bg-white flex flex-col w-full h-full rounded-2xl overflow-hidden shadow-xl pb-2">
+                <DisplayCard className="w-full h-full pb-2">
                     <h1 className="bg-inherit font-bold text-3xl pt-2 pb-8 px-4 mt-2 text-center">Personal Information</h1>
                     <form className="bg-inherit mb-2">
                         {personalInfo.name && (<FormElement label="Name" value={personalInfo.name ?? ""} type="text" />)}
@@ -40,12 +54,19 @@ export default function Info() {
                         {personalInfo.phone && (<FormElement label="Phone" value={personalInfo.phone ?? ""} type="number" />)}
                         {personalInfo.country && (<FormElement label="Country" value={personalInfo.country ?? ""} type="text" />)}
                     </form>
-                </div>
+                </DisplayCard>
                 <div className="flex flex-col space-y-6 justify-center items-center">
-                    <DeleteButton />
-                    <EditButton />
+                    <DeleteButton editing={editing} />
+                    {editing ? <SaveButton handleButtonClick={handleButtonClick} /> : <EditButton handleButtonClick={handleButtonClick} />}
                 </div>
             </div>
+
+            {/* {!credentialsChange.email && !credentialsChange.password && <div className="w-1/2">
+                <div className="flex items-center justify-center gap-x-14">
+                    <Button className="bg-blue-600 hover:bg-blue-800">Change Password</Button>
+                    <Button className="bg-blue-600 hover:bg-blue-800">Change Email</Button>
+                </div>
+            </div>} */}
         </div>
     )
 }
