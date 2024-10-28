@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Sidebar from "./components/Sidebar";
-import Info from "./components/Info";
+import PersonalInfo from "./components/PersonalInfo";
 import Projects from "./components/Projects";
 import Skills from "./components/Skills";
 import Experiences from "./components/Experiences";
@@ -42,7 +42,7 @@ function App() {
   return (
     <div className="flex">
       <Sidebar displayPage={displayPage} activePage={activePage} />
-      {showPage.info && <Info />}
+      {showPage.info && <PersonalInfo />}
       {showPage.projects && <Projects />}
       {showPage.skills && <Skills />}
       {showPage.experiences && <Experiences />}
