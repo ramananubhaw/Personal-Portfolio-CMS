@@ -1,4 +1,4 @@
-export default function FormElement({label, value, type, readOnly, onChange}: {label: string, value: string, type: string, readOnly?: boolean, onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void}) {
+export default function FormElement({label, value, placeholder, type, readOnly, onChange}: {label: string, value: string, placeholder?: string, type: string, readOnly?: boolean, onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void}) {
     
     const readonly = readOnly || false;
     
@@ -8,7 +8,7 @@ export default function FormElement({label, value, type, readOnly, onChange}: {l
             <input
                 type={type}
                 value={value}
-                placeholder={value || "Enter here..."}
+                placeholder={placeholder || value || "Enter here..."}
                 readOnly={readonly}
                 className={`bg-inherit px-1 ml-4 w-2/3 text-black ${readonly ? "" : "border-black"}`}
                 onChange={onChange}
