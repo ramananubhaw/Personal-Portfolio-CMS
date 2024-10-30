@@ -11,9 +11,9 @@ import SaveButton from "./buttons/SaveButton";
 export default function Projects() {
 
     type Project = {
-        name: null | string,
-        description: null | string,
-        techStack: null | string[],
+        name: string,
+        description: string,
+        techStack: string[],
         link: null | string,
         deployment: null | string,
         editing: boolean,
@@ -33,7 +33,7 @@ export default function Projects() {
         {
             name: "NASA APOD Project",
             description: "Basic React project using Vite",
-            techStack: ["React", "Express", "MongoDB", "NodeJS"],
+            techStack: ["ReactJS"],
             link: null,
             deployment: null,
             editing: false,
@@ -41,8 +41,8 @@ export default function Projects() {
         },
         {
             name: "Iterative Zero",
-            description: "Online complaint registration portal",
-            techStack: ["React", "Express", "MongoDB", "NodeJS"],
+            description: "Personal Portfolio with Admin Dashboard",
+            techStack: ["NextJS", "ReactJS", "ExpressJS", "MongoDB", "TypeScript", "Tailwind CSS"],
             link: null,
             deployment: null,
             editing: false,
@@ -50,10 +50,7 @@ export default function Projects() {
         }
     ]);
 
-    function displayTechStack(techStack: string[] | null): string {
-        if (techStack==null) {
-            return "";
-        }
+    function displayTechStack(techStack: string[]): string {
         let ts = "";
         for (let i=0; i<techStack.length-1; i++) {
             ts += `${techStack[i]}, `;
@@ -74,6 +71,48 @@ export default function Projects() {
         return projects.some((project: Project) => project.editing);
     }
 
+    function handleExistingProjectChange(e: React.ChangeEvent<HTMLInputElement>, p: Project, field: keyof Project) {
+        setProjects((prevState: Project[]) => (
+            prevState.map((project: Project) => (
+                project.name === p.name ? {...project, [field]: e.target.value} : {...project}
+            ))
+        ))
+    }
+
+    const [newProject, setNewProject] = useState<Project> ({
+        name: "",
+        description: "",
+        techStack: [""],
+        deployment: null,
+        link: null,
+        editing: false,
+        disabled: false
+    })
+
+    function handleAddProjectClick() {
+        setProjects((prevState: Project[]) => (
+            prevState.map((project: Project) => (
+                {...project, disabled: !project.disabled}
+            ))
+        ));
+        setNewProject((prevState: Project) => (
+            {...prevState, editing: !prevState.editing}
+        ));
+    }
+
+    function handleNewProjectChange(e: React.ChangeEvent<HTMLInputElement>, field: keyof Project) {
+        let value;
+        if (field === "techStack") {
+            value = e.target.value.split(', ');
+
+        }
+        else value = e.target.value;
+        setNewProject((prevState: Project) => (
+            {...prevState, [field]: value}
+        ))
+        console.log(newProject.techStack);
+    }
+
     const noProject: boolean = (projects.length === 0);
 
     return noProject ? (
@@ -84,12 +123,12 @@ export default function Projects() {
             {projects.map((project) => (
                 <div className="w-3/5 flex justify-center items-center mb-10">
                     <DisplayCard className="flex-col justify-center items-center w-full">
+                        <h2 className="bg-inherit font-bold text-2xl pt-3 text-center">{project.name}</h2>
                         <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
-                            <FormElement label="Name" value={project.name || ""} type="text" readOnly={true} />
-                            <FormElement label="Description" value={project.description || ""} type="text" readOnly={true} />
-                            <FormElement label="Tech Stack" value={displayTechStack(project.techStack)} type="text" readOnly={true} />
-                            <FormElement label="Project Link" value={project.link || "None"} type="text" readOnly={true} />
-                            <FormElement label="Deployment Link" value={project.deployment || "None"} type="text" readOnly={true} />
+                            <FormElement label="Description" value={project.description} type="text" readOnly={!project.editing} onChange={(e) => handleExistingProjectChange(e, project, "description")} />
+                            <FormElement label="Tech Stack" value={displayTechStack(project.techStack)} type="text" readOnly={!project.editing} onChange={(e) => handleExistingProjectChange(e, project, "techStack")} />
+                            <FormElement label="Project Link" value={project.link || "None"} type="text" readOnly={!project.editing} onChange={(e) => handleExistingProjectChange(e, project, "link")} />
+                            <FormElement label="Deployment Link" value={project.deployment || "None"} type="text" readOnly={!project.editing} onChange={(e) => handleExistingProjectChange(e, project, "deployment")} />
                         </form>
                     </DisplayCard>
                     <div className="h-full w-1/12 flex flex-col space-y-6 justify-center items-center">
@@ -98,13 +137,21 @@ export default function Projects() {
                     </div>
                 </div>
             ))}
-            <Button disabled={disableAddButton()} onClick={() => {
-                setProjects((prevState: Project[]) => (
-                    prevState.map((project: Project) => (
-                        {...project, disabled: !project.disabled}
-                    ))
-                ))
-            }} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Project</Button>
+            {(newProject.editing) ? 
+            <DisplayCard className="w-3/5 mb-12">
+                <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
+                    <FormElement label="Name" value={newProject.name || ""} type="text" onChange={(e) => handleNewProjectChange(e, "name")} />
+                    <FormElement label="Description" value={newProject.description || ""} type="text" onChange={(e) => handleNewProjectChange(e, "description")} />
+                    <FormElement label="Tech Stack" value={displayTechStack(newProject.techStack)} placeholder="Enter separated by a comma and a whitespace ', '" type="text" onChange={(e) => handleNewProjectChange(e, "techStack")} />
+                    <FormElement label="Project Link" value={newProject.link || ""} type="text" onChange={(e) => handleNewProjectChange(e, "link")} />
+                    <FormElement label="Deployment Link" value={newProject.deployment || ""} type="text" onChange={(e) => handleNewProjectChange(e, "deployment")} />
+                    <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
+                        <Button className="bg-green-600 hover:bg-green-800" onClick={handleAddProjectClick}>Submit</Button>
+                        <Button className="bg-red-600 hover:bg-red-800" onClick={handleAddProjectClick}>Cancel</Button>
+                    </div>
+                </form>
+            </DisplayCard> : 
+            <Button disabled={disableAddButton()} onClick={handleAddProjectClick} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Project</Button>}
         </div>
     )
 }

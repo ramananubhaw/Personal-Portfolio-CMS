@@ -13,11 +13,11 @@ export default function PersonalInfo() {
     // personal info
 
     type PersonalInfo = {
-        name: string | null;
-        email: string | null;
-        dob: string | null;
-        phone: string | null;
-        country: string | null;
+        name: string;
+        email: string;
+        dob: string;
+        phone: string;
+        country: string;
     }
 
     const [personalInfo, setPersonalInfo] = useState<PersonalInfo> ({
@@ -84,8 +84,8 @@ export default function PersonalInfo() {
             return (
                 <DisplayCard className="w-1/2">
                     <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
-                        <FormElement label="New Email" value={changeEmail.newEmail || ""} type="email" onChange={(e) => handleChangeEmail(e, "newEmail")} />
-                        <FormElement label="Enter password" value={changeEmail.password || ""} type="password" onChange={(e) => handleChangeEmail(e, "password")} />
+                        <FormElement label="New Email" value={changeEmail.newEmail} type="email" onChange={(e) => handleChangeEmail(e, "newEmail")} />
+                        <FormElement label="Enter password" value={changeEmail.password} type="password" onChange={(e) => handleChangeEmail(e, "password")} />
                         <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
                             <Button className="bg-green-600 hover:bg-green-800" onClick={() => handleCredentialsChangeClick("email")}>Submit</Button>
                             <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleCredentialsChangeClick("email")}>Cancel</Button>
@@ -112,8 +112,8 @@ export default function PersonalInfo() {
             return (
                 <div className="w-1/3">
                     <DisplayCard className="flex items-center justify-center gap-x-14 py-6">
-                        <Button disabled={editing} onClick={() => handleCredentialsChangeClick("email")} className="bg-blue-600 hover:bg-blue-800">Change Email</Button>
-                        <Button disabled={editing} onClick={() => handleCredentialsChangeClick("password")} className="bg-blue-600 hover:bg-blue-800">Change Password</Button>
+                        <Button disabled={editing} onClick={() => handleCredentialsChangeClick("email")} className="text-md bg-blue-600 hover:bg-blue-800">Change Email</Button>
+                        <Button disabled={editing} onClick={() => handleCredentialsChangeClick("password")} className="text-md bg-blue-600 hover:bg-blue-800">Change Password</Button>
                     </DisplayCard>
                 </div>
             )
@@ -128,13 +128,13 @@ export default function PersonalInfo() {
         <div className="w-full h-screen flex flex-col justify-center gap-y-16 items-center">
             <div className="w-1/2 flex h-5/12">
                 <DisplayCard className="w-full h-full pb-2 flex-col">
-                    <h1 className="bg-inherit font-bold text-3xl pt-2 pb-8 px-4 mt-2 text-center">PERSONAL INFORMATION</h1>
+                    <h1 className="bg-inherit font-bold text-3xl pt-2 pb-8 px-4 mt-2 text-center">Personal Information</h1>
                     <form className="bg-inherit mb-2">
-                        {personalInfo.name && (<FormElement label="Name" value={personalInfo.name ?? ""} type="text" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "name")} />)}
-                        {personalInfo.email && (<FormElement label="Email" value={personalInfo.email ?? ""} type="email" readOnly={true} />)}
-                        {personalInfo.dob && (<FormElement label="Date of Birth" value={personalInfo.dob ?? ""} type="date" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "dob")} />)}
-                        {personalInfo.phone && (<FormElement label="Phone" value={personalInfo.phone ?? ""} type="number" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "phone")} />)}
-                        {personalInfo.country && (<FormElement label="Country" value={personalInfo.country ?? ""} type="text" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "country")} />)}
+                        {personalInfo.name && (<FormElement label="Name" value={personalInfo.name} type="text" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "name")} />)}
+                        {personalInfo.email && (<FormElement label="Email" value={personalInfo.email} type="email" readOnly={true} />)}
+                        {personalInfo.dob && (<FormElement label="Date of Birth" value={personalInfo.dob} type="date" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "dob")} />)}
+                        {personalInfo.phone && (<FormElement label="Phone" value={personalInfo.phone} type="number" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "phone")} />)}
+                        {personalInfo.country && (<FormElement label="Country" value={personalInfo.country} type="text" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "country")} />)}
                     </form>
                 </DisplayCard>
                 <div className="flex flex-col space-y-6 justify-center items-center">
