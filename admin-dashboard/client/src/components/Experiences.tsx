@@ -132,7 +132,7 @@ export default function Experiences() {
         <div className="w-full flex flex-col justify-center items-center">
             <h1 className="font-bold text-3xl pt-5 pb-8 px-4 mt-2 text-center">EXPERIENCES</h1>
             {experiences.map((experience) => (
-                <div className="w-3/5 flex justify-center items-center mb-10">
+                <div key={experience.serialNo} className="w-3/5 flex justify-center items-center mb-10">
                     <DisplayCard className="flex-col justify-center items-center w-full">
                         <h2 className="bg-inherit font-bold text-2xl pt-3 text-center">Experience-{experience.serialNo}</h2>
                         <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
@@ -141,7 +141,7 @@ export default function Experiences() {
                             <FormElement label="Category" value={experience.category} type="text" readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "category")} />
                             <FormElement label="Company Name" value={experience.companyName} type="text" readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "companyName")} />
                             <FormElement label="Start Date" value={experience.duration.startDate.toISOString().split('T')[0]} type="date" readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "duration", "startDate")} />
-                            <FormElement label="End Date" value={experience.duration.endDate ? new Date(experience.duration.endDate).toISOString().split('T')[0] : "Currently working here"} type={experience.duration.isCurrent ? "text" : "date"} readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "duration", "endDate")} />
+                            <FormElement label="End Date" value={experience.duration.endDate ? new Date(experience.duration.endDate).toISOString().split('T')[0] : "Currently working here"} type={experience.editing ? "date" : (experience.duration.isCurrent ? "text" : "date")} readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "duration", "endDate")} />
                             <FormElement label="Location" value={experience.companyAddress} type="text" readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "companyAddress")} />
                         </form>
                     </DisplayCard>

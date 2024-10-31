@@ -110,7 +110,6 @@ export default function Projects() {
         setNewProject((prevState: Project) => (
             {...prevState, [field]: value}
         ))
-        console.log(newProject.techStack);
     }
 
     const noProject: boolean = (projects.length === 0);
@@ -121,7 +120,7 @@ export default function Projects() {
         <div className="w-full flex flex-col justify-center items-center">
             <h1 className="font-bold text-3xl pt-5 pb-8 px-4 mt-2 text-center">PROJECTS</h1>
             {projects.map((project) => (
-                <div className="w-3/5 flex justify-center items-center mb-10">
+                <div key={project.name} className="w-3/5 flex justify-center items-center mb-10">
                     <DisplayCard className="flex-col justify-center items-center w-full">
                         <h2 className="bg-inherit font-bold text-2xl pt-3 text-center">{project.name}</h2>
                         <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
