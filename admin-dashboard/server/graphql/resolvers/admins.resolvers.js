@@ -4,19 +4,22 @@ import { verifyPassword } from '../../middlewares/verifyPassword.js';
 import { authenticateToken } from '../../middlewares/authenticateToken.js';
 import jwt from 'jsonwebtoken';
 import { loginError, alreadyAuthenticatedError, invalidPasswordChangeRequest, notFoundError, noUpdateNeededError } from '../errors.js';
+import { convertToDate } from '../../middlewares/convertToDate.js';
 
 export const adminResolvers = {
     Query: {
-        getAdmin: async (_, __, {req}) => {
+        admin: async (_, __, {req}) => {
             authenticateToken(req);
             try {
                 // console.log(req.admin);
                 const email = req.admin.email;
                 const admin = await admins.findOne({email: email});
                 if (!admin) {
-                    throw new notFoundError
+                    throw new notFoundError;
                 }
-                return admin;
+                return {
+                    ...admin.toObject(), dob: convertToDate(admin.dob)
+                };
             }
             catch (error) {
                 console.log(error.message);
@@ -24,7 +27,7 @@ export const adminResolvers = {
             }
         },
 
-        getAllAdmins: async (_, __, {req}) => {
+        admins: async (_, __, {req}) => {
             authenticateToken(req);
             try {
                 const allAdmins = await admins.find();
@@ -37,6 +40,13 @@ export const adminResolvers = {
                 console.log(error.message);
                 throw error;
             }
+        },
+
+        isLoggedIn: async (_, __, {req}) => {
+            if (req.cookies && req.cookies.accessToken) {
+                return true;
+            }
+            return false;
         }
     },
 
@@ -114,16 +124,16 @@ export const adminResolvers = {
 
         adminLogin: async (_, {input}, {req, res}) => {
             try {
-                if (req.cookies.accessToken) {
-                    throw alreadyAuthenticatedError;
+                if (req.cookies && req.cookies.accessToken) {
+                    return {message: "Already logged in", loggedIn: true, status: 409};
                 }
                 const admin = await admins.findOne({email: input.username}, {hashedPassword: 1, name: 1, email: 1, _id: 0});
                 if (!admin || !admin.hashedPassword) {
-                    throw loginError;
+                    return {message: "Invalid email", loggedIn: false, status: 401};
                 }
                 const check = await verifyPassword(input.password, admin.hashedPassword);
                 if (!check) {
-                    throw loginError;
+                    return {message: "Incorrect password", loggedIn: false, status: 401};
                 }
 
                 const accessToken = jwt.sign({
@@ -138,11 +148,11 @@ export const adminResolvers = {
                 res.cookie("accessToken", accessToken, {
                     httpOnly: true,
                     // secure: true,
-                    // sameSite: "strict",
+                    // sameSite: "none",
                     maxAge: process.env.AUTH_COOKIE_EXPIRY_TIME  // increase expiration time of cookie in production
                 });
 
-                return {message: "Logged in", loggedIn: true};
+                return {message: "Logged in", loggedIn: true, status: 200};
             }
             catch (error) {
                 console.log(error.message);
@@ -153,7 +163,7 @@ export const adminResolvers = {
         adminLogout: (_, __, {req, res}) => {
             authenticateToken(req);
             try {
-                console.log(req.admin);
+                // console.log(req.admin);
                 res.clearCookie("accessToken");
                 return {message: "Logged out", loggedOut: true};
             }

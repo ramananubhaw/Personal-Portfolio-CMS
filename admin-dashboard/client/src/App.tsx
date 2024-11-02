@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@apollo/client";
+import { isLoggedIn } from "./graphql/queries";
+import LoginPage from "./components/LoginPage";
 import Sidebar from "./components/Sidebar";
 import PersonalInfo from "./components/PersonalInfo";
 import Projects from "./components/Projects";
@@ -39,15 +42,33 @@ function App() {
     }));
   }
 
-  return (
+  const [loggedIn, setLoggedIn] = useState<boolean> (false);
+
+  const { error, data } = useQuery(isLoggedIn);
+
+  if (error) console.log(error);
+
+  useEffect(() => {
+    if (data && data.isLoggedIn !== loggedIn) {
+      setLoggedIn(data.isLoggedIn);
+    }
+  }, [data, loggedIn]);
+
+  function handleLogin() {
+    setLoggedIn(!loggedIn);
+  }
+
+  return loggedIn ? (
     <div className="flex">
-      <Sidebar displayPage={displayPage} activePage={activePage} />
+      <Sidebar displayPage={displayPage} activePage={activePage} handleLogin={handleLogin} />
       {showPage.info && <PersonalInfo />}
       {showPage.projects && <Projects />}
       {showPage.skills && <Skills />}
       {showPage.experiences && <Experiences />}
       {showPage.accounts && <Accounts />}
     </div>
+  ) : (
+    <LoginPage handleLogin={handleLogin} />
   )
 }
 

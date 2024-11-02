@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@apollo/client";
+import { personalInfoQuery } from "../graphql/queries";
 import NotAvailable from "./NotAvailable";
 import FormElement from "./FormElement";
 import DeleteButton from "./buttons/DeleteButton";
@@ -21,14 +23,22 @@ export default function PersonalInfo() {
     }
 
     const [personalInfo, setPersonalInfo] = useState<PersonalInfo> ({
-        name: "TUVTUVTUV",
-        email: "xyzabc@gmail.com",
-        dob: "2009-12-01",
-        phone: "3434343434",
-        country: "XYZABC"
+        name: "",
+        email: "",
+        dob: "",
+        phone: "",
+        country: ""
     })
 
-    const noInfo: boolean = Object.values(personalInfo).every((field) => field === null);
+    const { loading, error, data } = useQuery(personalInfoQuery);
+
+    useEffect(() => {
+        if (data && data.admin) {
+            setPersonalInfo(data.admin);
+        }
+    }, [data]);
+
+    const noInfo: boolean = Object.values(personalInfo).every((field) => field === "");
 
     function handlePersonalInfoChange(e: React.ChangeEvent<HTMLInputElement>, field: keyof PersonalInfo) {
         setPersonalInfo((prevState) => ({

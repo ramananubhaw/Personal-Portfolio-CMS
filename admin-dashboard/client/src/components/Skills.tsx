@@ -111,8 +111,7 @@ export default function Skills() {
     return noSkills ? (
         <NotAvailable message="No skill added" button="Add skill" />
     ) : (
-        <div className="w-full flex flex-col justify-center items-center">
-            <h1 className="font-bold text-3xl pt-5 pb-8 px-4 mt-2 text-center">SKILLS</h1>
+        <div className="w-full flex flex-col justify-center items-center mt-8">
             {skills.map((skill) => (
                 <div key={skill.name} className="w-1/2 flex justify-center items-center mb-10">
                     <DisplayCard className="flex-col justify-center items-center w-full">

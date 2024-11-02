@@ -1,9 +1,9 @@
-export default function Icon({src}: {src:string}) {
+export default function Icon({src, className}: {src: string, className?: string}) {
     return (
         <img
             src={src}
             alt="icon"
-            className="w-4 h-4 bg-inherit"
+            className={className || "w-4 h-4 bg-inherit"}
         />
     )
 }
