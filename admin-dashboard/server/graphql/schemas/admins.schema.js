@@ -25,6 +25,7 @@ export const adminTypeDefs = `
     type LoginResponse {
         message: String!
         loggedIn: Boolean!
+        status: Int!
     }
 
     type LogoutResponse {
@@ -42,8 +43,9 @@ export const adminTypeDefs = `
     }
 
     extend type Query {
-        getAdmin: Admin
-        getAllAdmins: [Admin]
+        admin: Admin
+        admins: [Admin]
+        isLoggedIn: Boolean!
     }
 
     extend type Mutation {

@@ -8,7 +8,7 @@ export default function FormElement({label, value, placeholder, type, readOnly, 
             <input
                 type={type}
                 value={value}
-                placeholder={placeholder || value || "Enter here..."}
+                placeholder={placeholder || value || "Enter here"}
                 readOnly={readonly}
                 className={`bg-inherit px-1 ml-4 w-2/3 text-black ${readonly ? "" : "border-black"}`}
                 onChange={onChange}

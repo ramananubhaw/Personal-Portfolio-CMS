@@ -129,8 +129,7 @@ export default function Experiences() {
     return noExperience ? (
         <NotAvailable message="No experience added" button="Add Experience" />
     ) : (
-        <div className="w-full flex flex-col justify-center items-center">
-            <h1 className="font-bold text-3xl pt-5 pb-8 px-4 mt-2 text-center">EXPERIENCES</h1>
+        <div className="w-full flex flex-col justify-center items-center mt-8">
             {experiences.map((experience) => (
                 <div key={experience.serialNo} className="w-3/5 flex justify-center items-center mb-10">
                     <DisplayCard className="flex-col justify-center items-center w-full">

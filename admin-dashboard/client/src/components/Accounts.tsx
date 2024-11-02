@@ -32,7 +32,14 @@ export default function Accounts() {
             link: "None",
             editing: false,
             disabled: false
-        }
+        },
+        {
+            username: "__anubhaw__",
+            platform: "Twitter(X)",
+            link: "None",
+            editing: false,
+            disabled: false
+        },
 
     ]);
 
@@ -86,8 +93,7 @@ export default function Accounts() {
     return noAccount ? (
         <NotAvailable message="No account added" button="Add account" />
     ) : (
-        <div className="w-full flex flex-col justify-center items-center">
-            <h1 className="font-bold text-3xl pt-5 pb-8 px-4 mt-2 text-center">ACCOUNTS</h1>
+        <div className="w-full flex flex-col justify-center items-center mt-8">
             {accounts.map((account) => (
                 <div key={account.platform} className="w-1/2 flex justify-center items-center mb-10">
                     <DisplayCard className="flex-col justify-center items-center w-full">

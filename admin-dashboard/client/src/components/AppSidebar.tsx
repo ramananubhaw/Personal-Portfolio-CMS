@@ -1,10 +1,12 @@
 import { ReactNode } from "react";
+import { useMutation } from "@apollo/client";
 import Icon from "./Icon";
 import Profile from "../assets/profile.svg";
 import Experience from "../assets/experience.svg";
 import Accounts from "../assets/accounts.svg";
 import Skills from "../assets/skills.svg";
 import Projects from "../assets/projects.svg";
+import Logout from "../assets/logout.svg";
 
 import {
   Sidebar,
@@ -45,12 +47,12 @@ const items: {title: string, url: string, icon: ReactNode}[] = [
   },
 ]
 
-export function AppSidebar({displayPage, activePage}: {displayPage: (page: string) => void; activePage: string;}) {
+export function AppSidebar({displayPage, activePage, handleLogin}: {displayPage: (page: string) => void; activePage: string; handleLogin: () => void}) {
 
   const isActive = (url: string): boolean => url === activePage;
 
   return (
-    <Sidebar className="text-black font-medium shadow-xl">
+    <Sidebar className="text-black font-medium shadow-xl bg-white">
       <SidebarContent className="bg-white">
         <SidebarGroup className="bg-inherit">
           <SidebarGroupLabel className="w-full text-black text-2xl font-bold mt-3 mb-5 bg-inherit flex items-center justify-center">Admin Dashboard</SidebarGroupLabel>
@@ -70,6 +72,9 @@ export function AppSidebar({displayPage, activePage}: {displayPage: (page: strin
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <div className="mb-5 bg-white flex justify-end items-center p-0 hover:bg-white hover:cursor-default w-full pr-5">
+        <button onClick={handleLogin} className="bg-white hover:bg-gray-200 p-2 rounded-lg"><Icon src={Logout} className="h-7 hover:cursor-pointer bg-inherit" /></button>
+      </div>
     </Sidebar>
   )
 }

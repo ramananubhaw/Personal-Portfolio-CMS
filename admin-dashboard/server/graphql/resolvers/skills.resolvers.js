@@ -40,8 +40,8 @@ export const skillResolvers = {
                 if (skill) {
                     throw new Error("Skill already added.");
                 }
-                await skills.create(input);
-                return input;
+                const newSkill = await skills.create(input);
+                return newSkill;
             }
             catch (error) {
                 console.log(error.message);
