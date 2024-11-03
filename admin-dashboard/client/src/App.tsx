@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client";
-import { isLoggedIn } from "./graphql/queries";
+import { isLoggedIn } from "./graphql/admin";
 import LoginPage from "./components/LoginPage";
 import Sidebar from "./components/Sidebar";
 import PersonalInfo from "./components/PersonalInfo";
@@ -54,7 +54,7 @@ function App() {
     if (data && data.isLoggedIn !== loggedIn) {
       setLoggedIn(!loggedIn);
     }
-  }, [data]);
+  }, [data, error]);
 
   function handleLogin() {
     setLoggedIn(!loggedIn);
