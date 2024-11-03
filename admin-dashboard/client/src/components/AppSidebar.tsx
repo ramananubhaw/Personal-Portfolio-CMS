@@ -1,6 +1,6 @@
 import { ReactNode, useEffect } from "react";
 import { useMutation } from "@apollo/client";
-import { adminLogout } from "@/graphql/queries";
+import { adminLogout } from "@/graphql/admin";
 import Icon from "./Icon";
 import Profile from "../assets/profile.svg";
 import Experience from "../assets/experience.svg";

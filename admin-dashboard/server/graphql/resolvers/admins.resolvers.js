@@ -75,7 +75,7 @@ export const adminResolvers = {
         updateAdmin: async (_, {input}, {req}) => {
             authenticateToken(req);
             try {
-                console.log(req.admin);
+                // console.log(req.admin);
                 const email = req.admin.email;
                 const admin = await admins.findOne({email: email});
                 if (!admin) {
@@ -129,7 +129,7 @@ export const adminResolvers = {
                 }
                 const admin = await admins.findOne({email: input.username}, {hashedPassword: 1, name: 1, email: 1, _id: 0});
                 if (!admin || !admin.hashedPassword) {
-                    return {message: "Invalid email", loggedIn: false, status: 401};
+                    return {message: "Invalid username", loggedIn: false, status: 401};
                 }
                 const check = await verifyPassword(input.password, admin.hashedPassword);
                 if (!check) {

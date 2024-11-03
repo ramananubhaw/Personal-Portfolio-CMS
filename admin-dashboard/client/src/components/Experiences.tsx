@@ -145,8 +145,8 @@ export default function Experiences() {
                         </form>
                     </DisplayCard>
                     <div className="h-full w-1/12 flex flex-col space-y-6 justify-center items-center">
-                        {experience.editing ? <CancelButton handleEditingState={() => handleEditingState(experience)} /> : <DeleteButton disabled={experience.disabled} />}
-                        {experience.editing ? <SaveButton handleEditingState={() => handleEditingState(experience)} /> : <EditButton handleEditingState={() => handleEditingState(experience)} disabled={experience.disabled} />}
+                        {experience.editing ? <CancelButton onClick={() => handleEditingState(experience)} /> : <DeleteButton disabled={experience.disabled} />}
+                        {experience.editing ? <SaveButton onClick={() => handleEditingState(experience)} /> : <EditButton onClick={() => handleEditingState(experience)} disabled={experience.disabled} />}
                     </div>
                 </div>
             ))}

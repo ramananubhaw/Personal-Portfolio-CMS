@@ -3,7 +3,7 @@ import { useMutation } from "@apollo/client";
 import DisplayCard from "./DisplayCard";
 import FormElement from "./FormElement";
 import { Button } from "./ui/button";
-import { adminLogin } from "../graphql/queries";
+import { adminLogin } from "../graphql/admin";
 
 export default function LoginPage({ handleLogin }: { handleLogin: () => void }) {
 
@@ -34,6 +34,10 @@ export default function LoginPage({ handleLogin }: { handleLogin: () => void }) 
         if (data && data.adminLogin.loggedIn) {
             console.log(data.adminLogin.message);
             handleLogin();
+            return;
+        }
+        if (data && data.adminLogin.status===401) {
+            setMessage(data.adminLogin.message);
         }
     }, [data, error]);
 
@@ -60,6 +64,8 @@ export default function LoginPage({ handleLogin }: { handleLogin: () => void }) 
         setLoginCredentials({username: "", password: ""})
     }
 
+    const [message, setMessage] = useState<string> ("");
+
     return (
         <div className="flex flex-col justify-center items-center h-screen">
             <DisplayCard className="flex-col justify-center items-center bg-white w-1/3">
@@ -67,8 +73,9 @@ export default function LoginPage({ handleLogin }: { handleLogin: () => void }) 
                 <form className="bg-inherit w-full" onSubmit={(e) => { e.preventDefault(); submitCredentials(); }}>
                     <FormElement label="Username" value={loginCredentials.username} type="text" onChange={(e) => updateLoginCredentials(e, "username")} />
                     <FormElement label="Password" value={loginCredentials.password} type="password" onChange={(e) => updateLoginCredentials(e, "password")} />
+                    <p className="bg-inherit text-center text-red-600 font-medium text-lg">{message}</p>
                     <div className="bg-inherit flex items-center justify-center">
-                        <Button type="submit" className="bg-blue-600 hover:bg-blue-800 w-1/6 mt-4 mb-5 h-1/2">Login</Button>
+                        <Button type="submit" className={`bg-blue-600 hover:bg-blue-800 w-1/6 mb-5 h-1/2 ${message ? "mt-2" : "mt-4"}`}>Login</Button>
                     </div>
                 </form>
             </DisplayCard>

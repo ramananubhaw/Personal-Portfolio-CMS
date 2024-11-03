@@ -104,8 +104,8 @@ export default function Accounts() {
                         </form>
                     </DisplayCard>
                     <div className="h-full flex flex-col space-y-6 justify-center items-center">
-                        {account.editing ? <CancelButton handleEditingState={() => handleEditingState(account)} /> : <DeleteButton disabled={account.disabled} />}
-                        {account.editing ? <SaveButton handleEditingState={() => handleEditingState(account)} /> : <EditButton handleEditingState={() => handleEditingState(account)} disabled={account.disabled} />}
+                        {account.editing ? <CancelButton onClick={() => handleEditingState(account)} /> : <DeleteButton disabled={account.disabled} />}
+                        {account.editing ? <SaveButton onClick={() => handleEditingState(account)} /> : <EditButton onClick={() => handleEditingState(account)} disabled={account.disabled} />}
                     </div>
                 </div>
             ))}

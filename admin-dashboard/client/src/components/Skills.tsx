@@ -122,8 +122,8 @@ export default function Skills() {
                         </form>
                     </DisplayCard>
                     <div className="h-full flex flex-col space-y-6 justify-center items-center">
-                        {skill.editing ? <CancelButton handleEditingState={() => handleEditingState(skill)} /> : <DeleteButton disabled={skill.disabled} />}
-                        {skill.editing ? <SaveButton handleEditingState={() => handleEditingState(skill)} /> : <EditButton handleEditingState={() => handleEditingState(skill)} disabled={skill.disabled} />}
+                        {skill.editing ? <CancelButton onClick={() => handleEditingState(skill)} /> : <DeleteButton disabled={skill.disabled} />}
+                        {skill.editing ? <SaveButton onClick={() => handleEditingState(skill)} /> : <EditButton onClick={() => handleEditingState(skill)} disabled={skill.disabled} />}
                     </div>
                 </div>
             ))}

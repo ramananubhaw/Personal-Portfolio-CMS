@@ -130,8 +130,8 @@ export default function Projects() {
                         </form>
                     </DisplayCard>
                     <div className="h-full w-1/12 flex flex-col space-y-6 justify-center items-center">
-                        {project.editing ? <CancelButton handleEditingState={() => handleEditingState(project)} /> : <DeleteButton disabled={project.disabled} />}
-                        {project.editing ? <SaveButton handleEditingState={() => handleEditingState(project)} /> : <EditButton handleEditingState={() => handleEditingState(project)} disabled={project.disabled} />}
+                        {project.editing ? <CancelButton onClick={() => handleEditingState(project)} /> : <DeleteButton disabled={project.disabled} />}
+                        {project.editing ? <SaveButton onClick={() => handleEditingState(project)} /> : <EditButton onClick={() => handleEditingState(project)} disabled={project.disabled} />}
                     </div>
                 </div>
             ))}

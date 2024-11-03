@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const personalInfoQuery = gql`
+export const getPersonalInfo = gql`
     query GetAdmin {
         admin {
             name
@@ -8,6 +8,28 @@ export const personalInfoQuery = gql`
             dob
             phone
             country
+        }
+    }
+`;
+
+export const updatePersonalInfo = gql`
+    mutation UpdateAdminDetails($input: AdminUpdateInput!) {
+        updateAdmin(input: $input) {
+            name
+            email
+            dob
+            phone
+            country
+        }
+    }
+`;
+
+export const addPersonalInfo = gql`
+    mutation CreateAdmin($input: AdminInput!) {
+        createAdmin(input: $input) {
+            name
+            email
+            hashedPassword
         }
     }
 `;
