@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@apollo/client";
 import DisplayCard from "./DisplayCard";
 import FormElement from "./FormElement";
@@ -17,27 +17,25 @@ export default function LoginPage({ handleLogin }: { handleLogin: () => void }) 
         password: ""
     });
 
-    const [login, { data, error }] = useMutation(adminLogin);
-
-    useEffect(() => {
-        if (data && data.adminLogin.loggedIn) {
-            handleLogin();
-            setLoginCredentials({ username: "", password: "" });
-        }
-    }, [data, handleLogin]);
-
-    useEffect(() => {
-        if (error) {
-            console.log("Login Error:", error);
-        }
-    }, [error]);
-
     function updateLoginCredentials(e: React.ChangeEvent<HTMLInputElement>, field: keyof LoginCredentials) {
         setLoginCredentials((prevState) => ({
             ...prevState, 
             [field]: e.target.value
         }));
     }
+
+    const [login, { data, error }] = useMutation(adminLogin);
+
+    useEffect(() => {
+        if (error) {
+            console.log(error);
+            return;
+        }
+        if (data && data.adminLogin.loggedIn) {
+            console.log(data.adminLogin.message);
+            handleLogin();
+        }
+    }, [data, error]);
 
     async function submitCredentials() {
         if (loginCredentials.username === "" || loginCredentials.password === "") {
@@ -52,10 +50,14 @@ export default function LoginPage({ handleLogin }: { handleLogin: () => void }) 
                     }
                 }
             });
+            if (data && data.adminLogin.loggedIn) {
+                
+            }
         }
         catch (error) {
             console.log("Error:", error);
         }
+        setLoginCredentials({username: "", password: ""})
     }
 
     return (

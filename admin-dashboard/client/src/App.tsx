@@ -46,13 +46,15 @@ function App() {
 
   const { error, data } = useQuery(isLoggedIn);
 
-  if (error) console.log(error);
-
   useEffect(() => {
-    if (data && data.isLoggedIn !== loggedIn) {
-      setLoggedIn(data.isLoggedIn);
+    if (error) {
+      console.log(error);
+      return;
     }
-  }, [data, loggedIn]);
+    if (data && data.isLoggedIn !== loggedIn) {
+      setLoggedIn(!loggedIn);
+    }
+  }, [data]);
 
   function handleLogin() {
     setLoggedIn(!loggedIn);

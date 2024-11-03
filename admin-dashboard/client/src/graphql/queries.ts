@@ -27,3 +27,12 @@ export const isLoggedIn = gql`
         isLoggedIn
     }
 `;
+
+export const adminLogout = gql`
+    mutation AdminLogout {
+        adminLogout {
+            loggedOut
+            message
+        }
+    }
+`;

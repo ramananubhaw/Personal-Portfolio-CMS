@@ -30,13 +30,17 @@ export default function PersonalInfo() {
         country: ""
     })
 
-    const { loading, error, data } = useQuery(personalInfoQuery);
+    const { error, data } = useQuery(personalInfoQuery);
 
     useEffect(() => {
+        if (error) {
+            console.log(error);
+            return;
+        }
         if (data && data.admin) {
             setPersonalInfo(data.admin);
         }
-    }, [data]);
+    }, [data, error]);
 
     const noInfo: boolean = Object.values(personalInfo).every((field) => field === "");
 

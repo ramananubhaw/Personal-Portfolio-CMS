@@ -1,5 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { useMutation } from "@apollo/client";
+import { adminLogout } from "@/graphql/queries";
 import Icon from "./Icon";
 import Profile from "../assets/profile.svg";
 import Experience from "../assets/experience.svg";
@@ -49,6 +50,28 @@ const items: {title: string, url: string, icon: ReactNode}[] = [
 
 export function AppSidebar({displayPage, activePage, handleLogin}: {displayPage: (page: string) => void; activePage: string; handleLogin: () => void}) {
 
+  const [logout, {error, data}] = useMutation(adminLogout);
+
+  useEffect(() => {
+    if (error) {
+      console.log(error);
+      return;
+    }
+    if (data && data.adminLogout.loggedOut) {
+      console.log(data.adminLogout.message);
+      handleLogin();
+    }
+  }, [data, error]);
+
+  async function handleLogout() {
+    try {
+      await logout();
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+  
   const isActive = (url: string): boolean => url === activePage;
 
   return (
@@ -73,7 +96,7 @@ export function AppSidebar({displayPage, activePage, handleLogin}: {displayPage:
         </SidebarGroup>
       </SidebarContent>
       <div className="mb-5 bg-white flex justify-end items-center p-0 hover:bg-white hover:cursor-default w-full pr-5">
-        <button onClick={handleLogin} className="bg-white hover:bg-gray-200 p-2 rounded-lg"><Icon src={Logout} className="h-7 hover:cursor-pointer bg-inherit" /></button>
+        <button onClick={handleLogout} className="bg-white hover:bg-gray-200 p-2 rounded-lg"><Icon src={Logout} className="h-7 hover:cursor-pointer bg-inherit" /></button>
       </div>
     </Sidebar>
   )
