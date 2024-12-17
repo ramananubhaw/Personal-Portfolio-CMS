@@ -81,21 +81,18 @@ export const adminResolvers = {
                 if (!admin) {
                     throw notFoundError;
                 }
-                if (input.password) {
-                    // console.log("Change Password is a separate Mutation of Admin");
-                    // delete input.password;
-                    throw invalidPasswordChangeRequest;
-                }
-                for (const key in input) {
-                    if (input[key] === admin[key]) {
-                        delete input[key];
-                    }
-                }
-                if (Object.keys(input).length === 0) {
-                    throw noUpdateNeededError;
-                }
+                // for (const key in input) {
+                //     if (input[key] === admin[key]) {
+                //         delete input[key];
+                //     }
+                // }
+                // if (Object.keys(input).length === 0) {
+                //     throw noUpdateNeededError;
+                // }
                 const updatedAdmin = await admins.findOneAndUpdate({email: email}, input, {new: true});
-                return updatedAdmin;
+                return {
+                    ...updatedAdmin.toObject(), dob: convertToDate(updatedAdmin.dob)
+                };
             }
             catch (error) {
                 console.log(error.message);
@@ -141,15 +138,17 @@ export const adminResolvers = {
                         email: admin.email,
                         name: admin.name
                     }
-                }, process.env.JWT_SECRET, {
-                    expiresIn: process.env.JWT_EXPIRY_TIME
-                });
+                }, process.env.JWT_SECRET, 
+                    // {
+                    //     expiresIn: process.env.JWT_EXPIRY_TIME
+                    // }
+                );
 
                 res.cookie("accessToken", accessToken, {
                     httpOnly: true,
                     // secure: true,
                     // sameSite: "none",
-                    maxAge: process.env.AUTH_COOKIE_EXPIRY_TIME  // increase expiration time of cookie in production
+                    // maxAge: process.env.AUTH_COOKIE_EXPIRY_TIME  // increase expiration time of cookie in production
                 });
 
                 return {message: "Logged in", loggedIn: true, status: 200};

@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { getAllSkills } from "@/graphql/skills";
+import { useQuery } from "@apollo/client";
+import MainDiv from "./MainDiv";
 import NotAvailable from "./NotAvailable";
 import DisplayCard from "./DisplayCard";
 import { Button } from "./ui/button";
@@ -10,37 +13,57 @@ import SaveButton from "./buttons/SaveButton";
 
 export default function Skills() {
 
+    type Certificate = {
+        name: string | null,
+        link: string | null
+    }
+    
     type Skill = {
         name: string,
         category: string,
-        certifications: null | string[],
+        certifications: null | Certificate[],
         editing: boolean,
         disabled: boolean
     }
 
-    const [skills, setSkills] = useState<Skill[]> ([
-        {
-            name: "ExpressJS",
-            category: "Backend Development",
-            certifications: null,
-            editing: false,
-            disabled: false
-        },
-        {
-            name: "ReactJS",
-            category: "Frontend Development",
-            certifications: null,
-            editing: false,
-            disabled: false
-        },
-        {
-            name: "C/C++",
-            category: "Programming Language(s)",
-            certifications: null,
-            editing: false,
-            disabled: false
+    // const [skills, setSkills] = useState<Skill[]> ([
+    //     {
+    //         name: "ExpressJS",
+    //         category: "Backend Development",
+    //         certifications: null,
+    //         editing: false,
+    //         disabled: false
+    //     },
+    //     {
+    //         name: "ReactJS",
+    //         category: "Frontend Development",
+    //         certifications: null,
+    //         editing: false,
+    //         disabled: false
+    //     },
+    //     {
+    //         name: "C/C++",
+    //         category: "Programming Language(s)",
+    //         certifications: null,
+    //         editing: false,
+    //         disabled: false
+    //     }
+    // ]);
+
+    const [skills, setSkills] = useState<Skill[]> ([]);
+
+    const {error: error, data: data} = useQuery(getAllSkills);
+
+    useEffect(() => {
+        if (error) {
+            console.log(error);
+            return;
         }
-    ]);
+        if (data) {
+            // console.log(data);
+            setSkills(data.getAllSkills);
+        }
+    }, [data, error]);
 
     function displayCertifications(certifications: string[] | null): string {
         if (certifications === null) {
@@ -111,7 +134,7 @@ export default function Skills() {
     return noSkills ? (
         <NotAvailable message="No skill added" button="Add skill" />
     ) : (
-        <div className="w-full flex flex-col justify-center items-center mt-8">
+        <MainDiv>
             {skills.map((skill) => (
                 <div key={skill.name} className="w-1/2 flex justify-center items-center mb-10">
                     <DisplayCard className="flex-col justify-center items-center w-full">
@@ -140,6 +163,6 @@ export default function Skills() {
                 </form>
             </DisplayCard> : 
             <Button disabled={disableAddButton()} onClick={handleAddSkillClick} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Skill</Button>}
-        </div>
+        </MainDiv>
     )
 }

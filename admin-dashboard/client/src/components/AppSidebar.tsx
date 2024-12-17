@@ -1,6 +1,8 @@
 import { ReactNode, useEffect } from "react";
 import { useMutation } from "@apollo/client";
 import { adminLogout } from "@/graphql/admin";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import Icon from "./Icon";
 import Profile from "../assets/profile.svg";
 import Experience from "../assets/experience.svg";
@@ -48,8 +50,10 @@ const items: {title: string, url: string, icon: ReactNode}[] = [
   },
 ]
 
-export function AppSidebar({displayPage, activePage, handleLogin}: {displayPage: (page: string) => void; activePage: string; handleLogin: () => void}) {
+export function AppSidebar({displayPage, handleLogin}: {displayPage: (page: string) => void; handleLogin: () => void}) {
 
+  const activePage: string = useSelector((state: RootState) => state.app.activePage);
+  
   const [logout, {error, data}] = useMutation(adminLogout);
 
   useEffect(() => {

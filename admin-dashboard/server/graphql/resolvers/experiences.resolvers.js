@@ -1,5 +1,6 @@
 import experiences from '../../models/experiences.model.js';
 import { authenticateToken } from '../../middlewares/authenticateToken.js';
+import { convertToDate } from '../../middlewares/convertToDate.js';
 
 export const experienceResolvers = {
     Query: {
@@ -9,7 +10,21 @@ export const experienceResolvers = {
                 if (allExperiences.length === 0) {
                     throw new Error("No experience");
                 }
-                return allExperiences;
+                const formattedExperiences = allExperiences.map((experience) => {
+                    const duration = experience.duration || {};
+        
+                    return {
+                        ...experience.toObject(),
+                        duration: {
+                            startDate: convertToDate(duration.startDate),
+                            endDate: duration.endDate
+                                ? convertToDate(duration.endDate)
+                                : null,
+                            isCurrent: duration.isCurrent,
+                        }
+                    };
+                });
+                return formattedExperiences;
             }
             catch (error) {
                 console.log(error.message);

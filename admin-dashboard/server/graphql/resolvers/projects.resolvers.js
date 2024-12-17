@@ -17,7 +17,7 @@ export const projectResolvers = {
             }
         },
 
-        getAllProjects: async () => {
+        projects: async () => {
             try {
                 const allProjects = await projects.find();
                 if (allProjects.length === 0) {

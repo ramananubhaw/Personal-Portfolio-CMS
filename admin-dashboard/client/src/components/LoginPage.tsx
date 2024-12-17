@@ -28,11 +28,13 @@ export default function LoginPage({ handleLogin }: { handleLogin: () => void }) 
 
     useEffect(() => {
         if (error) {
-            console.log(error);
+            setMessage("Internal Server Error");
+            console.log(error.message);
             return;
         }
         if (data && data.adminLogin.loggedIn) {
-            console.log(data.adminLogin.message);
+            // console.log(data.adminLogin.message);
+            // console.log(data.adminLogin.status);
             handleLogin();
             return;
         }
@@ -54,9 +56,6 @@ export default function LoginPage({ handleLogin }: { handleLogin: () => void }) 
                     }
                 }
             });
-            if (data && data.adminLogin.loggedIn) {
-                
-            }
         }
         catch (error) {
             console.log("Error:", error);

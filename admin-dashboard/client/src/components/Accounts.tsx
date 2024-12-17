@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { getAllAccounts } from "@/graphql/accounts";
+import { useQuery } from "@apollo/client";
+import MainDiv from "./MainDiv";
 import NotAvailable from "./NotAvailable";
 import DisplayCard from "./DisplayCard";
 import { Button } from "./ui/button";
@@ -18,30 +21,19 @@ export default function Accounts() {
         disabled: boolean
     }
 
-    const [accounts, setAccounts] = useState<Account[]> ([
-        {
-            username: "ramananubhaw",
-            platform: "GitHub",
-            link: "None",
-            editing: false,
-            disabled: false
-        },
-        {
-            username: "__anubhaw__",
-            platform: "Instagram",
-            link: "None",
-            editing: false,
-            disabled: false
-        },
-        {
-            username: "__anubhaw__",
-            platform: "Twitter(X)",
-            link: "None",
-            editing: false,
-            disabled: false
-        },
+    const [accounts, setAccounts] = useState<Account[]> ([]);
 
-    ]);
+    const {error: error, data: data} = useQuery(getAllAccounts);
+
+    useEffect(() => {
+        if (error) {
+            console.log(error);
+            return;
+        }
+        if (data && data.getAllAccounts) {
+            setAccounts(data.getAllAccounts);
+        }
+    }, [data, error])
 
     function handleEditingState(a: Account) {
         setAccounts((prevState: Account[]) => (
@@ -93,7 +85,7 @@ export default function Accounts() {
     return noAccount ? (
         <NotAvailable message="No account added" button="Add account" />
     ) : (
-        <div className="w-full flex flex-col justify-center items-center mt-8">
+        <MainDiv>
             {accounts.map((account) => (
                 <div key={account.platform} className="w-1/2 flex justify-center items-center mb-10">
                     <DisplayCard className="flex-col justify-center items-center w-full">
@@ -122,6 +114,6 @@ export default function Accounts() {
                 </form>
             </DisplayCard> : 
             <Button disabled={disableAddButton()} onClick={handleAddAccountClick} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Account</Button>}
-        </div>
+        </MainDiv>
     )
 }

@@ -35,11 +35,9 @@ export const adminTypeDefs = `
 
     input AdminUpdateInput {
         name: String
-        email: String
         dob: String
         phone: String
         country: String
-        password: String
     }
 
     extend type Query {

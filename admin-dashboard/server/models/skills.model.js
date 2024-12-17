@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const certificateSchema = new mongoose.Schema({
     name: {
         type: String,
-        unique: true,
         required: true
     },
     link: {
