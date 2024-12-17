@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { getAllExperiences } from "@/graphql/experiences";
+import { useQuery } from "@apollo/client";
+import MainDiv from "./MainDiv";
 import NotAvailable from "./NotAvailable";
 import DisplayCard from "./DisplayCard";
 import { Button } from "./ui/button";
@@ -11,8 +14,8 @@ import SaveButton from "./buttons/SaveButton";
 export default function Experiences() {
 
     type DurationObject = {
-        startDate: Date,
-        endDate: null | Date,
+        startDate: string,
+        endDate: null | string,
         isCurrent: boolean
     }
 
@@ -28,38 +31,53 @@ export default function Experiences() {
         disabled: boolean
     }
 
-    const [experiences, setExperiences] = useState<Experience[]> ([
-        {
-            serialNo: 1,
-            mode: "Remote",
-            role: "Full-stack developer",
-            category: "Internship",
-            companyName: "Iterative Zero",
-            duration: {
-                startDate: new Date("2024-10-01"),
-                endDate: null,
-                isCurrent: true
-            },
-            companyAddress: "Bengaluru, Karnataka, India",
-            editing: false,
-            disabled: false
-        },
-        {
-            serialNo: 2,
-            mode: "On-site",
-            role: "Backend developer",
-            category: "Internship",
-            companyName: "skilledity solutions",
-            duration: {
-                startDate: new Date("2024-10-01"),
-                endDate: null,
-                isCurrent: true
-            },
-            companyAddress: "Vellore, Tamil Nadu, India",
-            editing: false,
-            disabled: false
+    // const [experiences, setExperiences] = useState<Experience[]> ([
+    //     {
+    //         serialNo: 1,
+    //         mode: "Remote",
+    //         role: "Full-stack developer",
+    //         category: "Internship",
+    //         companyName: "Iterative Zero",
+    //         duration: {
+    //             startDate: new Date("2024-10-01"),
+    //             endDate: null,
+    //             isCurrent: true
+    //         },
+    //         companyAddress: "Bengaluru, Karnataka, India",
+    //         editing: false,
+    //         disabled: false
+    //     },
+    //     {
+    //         serialNo: 2,
+    //         mode: "On-site",
+    //         role: "Backend developer",
+    //         category: "Internship",
+    //         companyName: "skilledity solutions",
+    //         duration: {
+    //             startDate: new Date("2024-10-01"),
+    //             endDate: null,
+    //             isCurrent: true
+    //         },
+    //         companyAddress: "Vellore, Tamil Nadu, India",
+    //         editing: false,
+    //         disabled: false
+    //     }
+    // ]);
+
+    const [experiences, setExperiences] = useState<Experience[]> ([]);
+
+    const {error: error, data: data} = useQuery(getAllExperiences);
+
+    useEffect(() => {
+        if (error) {
+            console.log(error);
+            return;
         }
-    ]);
+        if (data) {
+            // console.log(data);
+            setExperiences(data.getAllExperiences);
+        }
+    }, [data, error]);
 
     function handleEditingState(exp: Experience) {
         setExperiences((prevState: Experience[]) => (
@@ -95,7 +113,7 @@ export default function Experiences() {
         category: "",
         companyName: "",
         duration: {
-            startDate: new Date(),
+            startDate: "",
             endDate: null,
             isCurrent: true
         },
@@ -129,7 +147,7 @@ export default function Experiences() {
     return noExperience ? (
         <NotAvailable message="No experience added" button="Add Experience" />
     ) : (
-        <div className="w-full flex flex-col justify-center items-center mt-8">
+        <MainDiv>
             {experiences.map((experience) => (
                 <div key={experience.serialNo} className="w-3/5 flex justify-center items-center mb-10">
                     <DisplayCard className="flex-col justify-center items-center w-full">
@@ -139,8 +157,8 @@ export default function Experiences() {
                             <FormElement label="Role" value={experience.role} type="text" readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "role")} />
                             <FormElement label="Category" value={experience.category} type="text" readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "category")} />
                             <FormElement label="Company Name" value={experience.companyName} type="text" readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "companyName")} />
-                            <FormElement label="Start Date" value={experience.duration.startDate.toISOString().split('T')[0]} type="date" readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "duration", "startDate")} />
-                            <FormElement label="End Date" value={experience.duration.endDate ? new Date(experience.duration.endDate).toISOString().split('T')[0] : "Currently working here"} type={experience.editing ? "date" : (experience.duration.isCurrent ? "text" : "date")} readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "duration", "endDate")} />
+                            <FormElement label="Start Date" value={experience.duration.startDate} type="date" readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "duration", "startDate")} />
+                            <FormElement label="End Date" value={experience.duration.endDate ? experience.duration.endDate : "Currently working here"} type={experience.editing ? "date" : (experience.duration.isCurrent ? "text" : "date")} readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "duration", "endDate")} />
                             <FormElement label="Location" value={experience.companyAddress} type="text" readOnly={!experience.editing} onChange={(e) => handleExistingExperienceChange(e, experience, "companyAddress")} />
                         </form>
                     </DisplayCard>
@@ -157,8 +175,8 @@ export default function Experiences() {
                     <FormElement label="Role" value={newExperience.role} type="text" readOnly={!newExperience.editing} onChange={(e) => handleNewExperienceChange(e, "role")} />
                     <FormElement label="Category" value={newExperience.category} type="text" onChange={(e) => handleNewExperienceChange(e, "category")} />
                     <FormElement label="Company Name" value={newExperience.companyName} type="text" onChange={(e) => handleNewExperienceChange(e, "companyName")} />
-                    <FormElement label="Start Date" value={newExperience.duration.startDate.toISOString().split('T')[0]} type="date" onChange={(e) => handleNewExperienceChange(e, "duration", "startDate")} />
-                    <FormElement label="End Date" value={newExperience.duration.endDate ? new Date(newExperience.duration.endDate).toISOString().split('T')[0] : ""} type="date" onChange={(e) => handleNewExperienceChange(e, "duration", "endDate")} />
+                    <FormElement label="Start Date" value={newExperience.duration.startDate} type="date" onChange={(e) => handleNewExperienceChange(e, "duration", "startDate")} />
+                    <FormElement label="End Date" value={newExperience.duration.endDate ? newExperience.duration.endDate : ""} type="date" onChange={(e) => handleNewExperienceChange(e, "duration", "endDate")} />
                     <FormElement label="Location" value={newExperience.companyAddress} type="text" onChange={(e) => handleNewExperienceChange(e, "companyAddress")} />
                     <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
                         <Button className="bg-green-600 hover:bg-green-800" onClick={handleAddExperienceClick}>Submit</Button>
@@ -167,6 +185,6 @@ export default function Experiences() {
                 </form>
             </DisplayCard> : 
             <Button disabled={disableAddButton()} onClick={handleAddExperienceClick} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Experience</Button>}
-        </div>
+        </MainDiv>
     )
 }

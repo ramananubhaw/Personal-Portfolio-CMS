@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client";
+import { useDispatch } from "react-redux";
+import { setActivePage } from "./redux/appSlice";
+// import { RootState } from "./redux/store";
 import { isLoggedIn } from "./graphql/admin";
 import LoginPage from "./components/LoginPage";
 import Sidebar from "./components/Sidebar";
@@ -10,6 +13,12 @@ import Experiences from "./components/Experiences";
 import Accounts from "./components/Accounts";
 
 function App() {
+
+  const dispatch = useDispatch();
+  // const { loggedIn } = useSelector((state: RootState) => state.app);
+  const [loggedIn, setLoggedIn] = useState<boolean>(
+    sessionStorage.getItem("loggedIn") === "true"
+  );
 
   type ShowPage = {
     info: boolean,
@@ -27,24 +36,30 @@ function App() {
     accounts: false
   })
 
-  const [activePage, setActivePage] = useState<string>("info");
-
   function displayPage(page: string) {
-    setActivePage(page);
-    setShowPage((prevState: ShowPage) => ({
-      ...prevState,
+    dispatch(setActivePage(page as keyof ShowPage));
+    setShowPage({
       info: false,
       projects: false,
       skills: false,
       experiences: false,
       accounts: false,
-      [page]: true
-    }));
+      [page as keyof ShowPage]: true
+    })
   }
 
-  const [loggedIn, setLoggedIn] = useState<boolean> (false);
+  // const [loggedIn, setLoggedIn] = useState<boolean> (false);
 
-  const { error, data } = useQuery(isLoggedIn);
+  const { error, data } = useQuery(isLoggedIn, {
+    fetchPolicy: "network-only",
+    onCompleted: (data) => {
+      setLoggedIn(data.isLoggedIn);
+      sessionStorage.setItem("loggedIn", String(data.isLoggedIn));
+    },
+    onError: () => {
+      console.error(error);
+    }
+  });
 
   useEffect(() => {
     if (error) {
@@ -57,12 +72,14 @@ function App() {
   }, [data, error]);
 
   function handleLogin() {
-    setLoggedIn(!loggedIn);
+    const newLoggedInState = !loggedIn;
+    setLoggedIn(newLoggedInState);
+    sessionStorage.setItem("loggedIn", String(newLoggedInState));
   }
 
   return loggedIn ? (
     <div className="flex">
-      <Sidebar displayPage={displayPage} activePage={activePage} handleLogin={handleLogin} />
+      <Sidebar displayPage={displayPage} handleLogin={handleLogin} />
       {showPage.info && <PersonalInfo />}
       {showPage.projects && <Projects />}
       {showPage.skills && <Skills />}
@@ -74,4 +91,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

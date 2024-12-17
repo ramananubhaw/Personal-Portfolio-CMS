@@ -3,7 +3,7 @@ export const projectTypeDefs = `
         name: String!
         description: String!
         techStack: [String!]!
-        link: String!
+        link: String
         deployment: String
     }
 
@@ -11,7 +11,7 @@ export const projectTypeDefs = `
         name: String!
         description: String!
         techStack: [String!]!
-        link: String!
+        link: String
         deployment: String
     }
 
@@ -24,7 +24,7 @@ export const projectTypeDefs = `
 
     extend type Query {
         getProject(name: ID!): Project
-        getAllProjects: [Project]
+        projects: [Project]
     }
 
     extend type Mutation {

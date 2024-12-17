@@ -29,7 +29,6 @@ const projectSchema = new mongoose.Schema({
     },
     link: {
         type: String,
-        required: true,
         validate: {
             validator: isValidGitHubURL,
             message: "Link must be a valid GitHub URL."

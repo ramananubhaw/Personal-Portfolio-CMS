@@ -63,7 +63,10 @@ export default {
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
   			}
-  		}
+  		},
+		overflow: {
+			overlay: 'overlay'
+		}
   	}
   },
   plugins: [require("tailwindcss-animate")],

@@ -60,7 +60,7 @@ export default function PersonalInfo() {
     const [ update, {error: updateError, data: updatedData} ] = useMutation(updatePersonalInfo)
 
     async function updateInfo() {
-        const isUnchanged = Object.keys(personalInfo).every((field: string) => {
+        const isUnchanged: boolean = Object.keys(personalInfo).every((field: string) => {
             return personalInfo[field as keyof PersonalInfo] === data.admin[field as keyof PersonalInfo];
         });
     
@@ -71,14 +71,19 @@ export default function PersonalInfo() {
     
         try {
             const { __typename, ...inputData } = personalInfo;
-            await update({ variables: { input: inputData } });
+            const changedFields = Object.fromEntries(
+                Object.entries(inputData).filter(([key, value]) => {
+                    return value !== data.admin[key as keyof PersonalInfo];
+                })
+            );
+            // console.log(changedFields);
+            await update({ variables: { input: changedFields } });
         }
         catch (error) {
             console.log(error);
         }
     }
     
-
     useEffect(() => {
         if (updateError) {
             console.log(updateError);
@@ -107,29 +112,12 @@ export default function PersonalInfo() {
         handleEditingState();
     }
     
-
-    // credentials - email and password
+    // change email
 
     const [changeEmail, setChangeEmail] = useState<{newEmail: string, password: string}> ({
         newEmail: "",
         password: ""
     });
-
-    const [changePassword, setChangePassword] = useState<{oldPassword: string, newPassword: string}> ({
-        oldPassword: "",
-        newPassword: ""
-    })
-
-    const [credentialsChange, setCredentialsChange] = useState<{email: boolean, password: boolean}> ({
-        email: false,
-        password: false
-    })
-
-    function handleCredentialsChangeClick(credential: keyof typeof credentialsChange) {
-        setCredentialsChange((prevState: {email: boolean, password: boolean}) => ({
-            ...prevState, email: false, password: false, [credential]: !prevState[credential]
-        }));
-    }
 
     function handleChangeEmail(e: React.ChangeEvent<HTMLInputElement>, field: keyof {newEmail: string, password: string}) {
         setChangeEmail((prevState: {newEmail: string, password: string}) => ({
@@ -137,10 +125,44 @@ export default function PersonalInfo() {
         }))
     }
 
+    // change password
+
+    const [changePassword, setChangePassword] = useState<{oldPassword: string, newPassword: string}> ({
+        oldPassword: "",
+        newPassword: ""
+    })
+
     function handleChangePassword(e: React.ChangeEvent<HTMLInputElement>, field: keyof {oldPassword: string, newPassword: string}) {
         setChangePassword((prevState: {oldPassword: string, newPassword: string}) => ({
             ...prevState, [field]: e.target.value
         }))
+    }
+
+    // credentials change
+
+    const [credentialsChange, setCredentialsChange] = useState<{email: boolean, password: boolean}> ({
+        email: false,
+        password: false
+    })
+
+    function handleCredentialsChangeClick(credential: keyof typeof credentialsChange, action: "submit" | "cancel" | "none") {
+        setCredentialsChange((prevState: {email: boolean, password: boolean}) => ({
+            ...prevState, email: false, password: false, [credential]: !prevState[credential]
+        }));
+        if (action==="cancel" || action==="submit") {
+            if (credential==="email") {
+                setChangeEmail({
+                    newEmail: "",
+                    password: ""
+                })
+            }
+            else {
+                setChangePassword({
+                    oldPassword: "",
+                    newPassword: ""
+                })
+            }
+        }
     }
 
     function renderCredentialsChange() {
@@ -151,8 +173,8 @@ export default function PersonalInfo() {
                         <FormElement label="New Email" value={changeEmail.newEmail} type="email" onChange={(e) => handleChangeEmail(e, "newEmail")} />
                         <FormElement label="Enter password" value={changeEmail.password} type="password" onChange={(e) => handleChangeEmail(e, "password")} />
                         <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                            <Button className="bg-green-600 hover:bg-green-800" onClick={() => handleCredentialsChangeClick("email")}>Submit</Button>
-                            <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleCredentialsChangeClick("email")}>Cancel</Button>
+                            <Button disabled={changeEmail.newEmail=="" || changeEmail.password==""} className="bg-green-600 hover:bg-green-800" onClick={() => handleCredentialsChangeClick("email", "submit")}>Submit</Button>
+                            <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleCredentialsChangeClick("email", "cancel")}>Cancel</Button>
                         </div>
                     </form>
                 </DisplayCard>
@@ -165,8 +187,8 @@ export default function PersonalInfo() {
                         <FormElement label="Old Password" value={changePassword.oldPassword} type="password" onChange={(e) => handleChangePassword(e, "oldPassword")} />
                         <FormElement label="New password" value={changePassword.newPassword} type="password" onChange={(e) => handleChangePassword(e, "newPassword")} />
                         <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                            <Button className="bg-green-600 hover:bg-green-800" onClick={() => handleCredentialsChangeClick("password")}>Submit</Button>
-                            <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleCredentialsChangeClick("password")}>Cancel</Button>
+                            <Button disabled={changePassword.oldPassword=="" || changePassword.newPassword==""} className="bg-green-600 hover:bg-green-800" onClick={() => handleCredentialsChangeClick("password", "submit")}>Submit</Button>
+                            <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleCredentialsChangeClick("password", "cancel")}>Cancel</Button>
                         </div>
                     </form>
                 </DisplayCard>
@@ -176,8 +198,8 @@ export default function PersonalInfo() {
             return (
                 <div className="w-1/3">
                     <DisplayCard className="flex items-center justify-center gap-x-14 py-6">
-                        <Button disabled={editing} onClick={() => handleCredentialsChangeClick("email")} className="text-md bg-blue-600 hover:bg-blue-800">Change Email</Button>
-                        <Button disabled={editing} onClick={() => handleCredentialsChangeClick("password")} className="text-md bg-blue-600 hover:bg-blue-800">Change Password</Button>
+                        <Button disabled={editing} onClick={() => handleCredentialsChangeClick("email", "none")} className="text-md bg-blue-600 hover:bg-blue-800">Change Email</Button>
+                        <Button disabled={editing} onClick={() => handleCredentialsChangeClick("password", "none")} className="text-md bg-blue-600 hover:bg-blue-800">Change Password</Button>
                     </DisplayCard>
                 </div>
             )
@@ -196,11 +218,11 @@ export default function PersonalInfo() {
                 <DisplayCard className="w-full h-full pb-2 flex-col">
                     <h1 className="bg-inherit font-bold text-3xl pt-2 pb-8 px-4 mt-2 text-center">Personal Information</h1>
                     <form className="bg-inherit mb-2">
-                        {personalInfo.name && (<FormElement label="Name" value={personalInfo.name} type="text" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "name")} />)}
-                        {personalInfo.email && (<FormElement label="Email" value={personalInfo.email} type="email" readOnly={true} />)}
-                        {personalInfo.dob && (<FormElement label="Date of Birth" value={personalInfo.dob} type="date" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "dob")} />)}
-                        {personalInfo.phone && (<FormElement label="Phone" value={personalInfo.phone} type="number" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "phone")} />)}
-                        {personalInfo.country && (<FormElement label="Country" value={personalInfo.country} type="text" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "country")} />)}
+                        <FormElement label="Name" value={personalInfo.name} type="text" placeholder={editing ? "Enter here" : "None"} readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "name")} />
+                        <FormElement label="Email" value={personalInfo.email} type="email" readOnly={true} />
+                        <FormElement label="Date of Birth" value={personalInfo.dob} type="date" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "dob")} />
+                        <FormElement label="Phone" value={personalInfo.phone} type="number" placeholder={editing ? "Enter here" : "None"} readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "phone")} />
+                        <FormElement label="Country" value={personalInfo.country} type="text" placeholder={editing ? "Enter here" : "None"} readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "country")} />
                     </form>
                 </DisplayCard>
                 <div className="flex flex-col space-y-6 justify-center items-center">
