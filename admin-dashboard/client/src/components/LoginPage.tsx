@@ -17,7 +17,7 @@ export default function LoginPage({ handleLogin }: { handleLogin: () => void }) 
         password: ""
     });
 
-    function updateLoginCredentials(e: React.ChangeEvent<HTMLInputElement>, field: keyof LoginCredentials) {
+    function updateLoginCredentials(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof LoginCredentials) {
         setLoginCredentials((prevState) => ({
             ...prevState, 
             [field]: e.target.value

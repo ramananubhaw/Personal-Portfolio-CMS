@@ -41,7 +41,7 @@ export default function PersonalInfo() {
         }
     }, [data, error]);
     
-    function handlePersonalInfoChange(e: React.ChangeEvent<HTMLInputElement>, field: keyof PersonalInfo) {
+    function handlePersonalInfoChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof PersonalInfo) {
         setPersonalInfo((prevState) => ({
             ...prevState, [field]: e.target.value 
         }))
@@ -119,7 +119,7 @@ export default function PersonalInfo() {
         password: ""
     });
 
-    function handleChangeEmail(e: React.ChangeEvent<HTMLInputElement>, field: keyof {newEmail: string, password: string}) {
+    function handleChangeEmail(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof {newEmail: string, password: string}) {
         setChangeEmail((prevState: {newEmail: string, password: string}) => ({
             ...prevState, [field]: e.target.value
         }))
@@ -132,7 +132,7 @@ export default function PersonalInfo() {
         newPassword: ""
     })
 
-    function handleChangePassword(e: React.ChangeEvent<HTMLInputElement>, field: keyof {oldPassword: string, newPassword: string}) {
+    function handleChangePassword(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof {oldPassword: string, newPassword: string}) {
         setChangePassword((prevState: {oldPassword: string, newPassword: string}) => ({
             ...prevState, [field]: e.target.value
         }))

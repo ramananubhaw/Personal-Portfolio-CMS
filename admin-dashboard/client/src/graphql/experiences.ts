@@ -17,3 +17,39 @@ export const getAllExperiences = gql`
         }
     }
 `;
+
+export const addExperience = gql`
+    mutation CreateExperience($input: ExperienceInput!) {
+        createExperience(input: $input) {
+            role
+            mode
+            category
+            companyName
+            companyAddress
+            duration {
+                startDate
+                isCurrent
+                endDate
+            }
+            serialNo
+        }
+    }
+`;
+
+export const updateExperience = gql`
+    mutation UpdateExperience($serialNo: Int!, $input: ExperienceUpdateInput!) {
+        updateExperience(serialNo: $serialNo, input: $input) {
+            role
+            mode
+            category
+            companyName
+            companyAddress
+            duration {
+                startDate
+                isCurrent
+                endDate
+            }
+            serialNo
+        }
+    }
+`;

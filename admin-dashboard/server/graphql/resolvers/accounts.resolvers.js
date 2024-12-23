@@ -49,22 +49,19 @@ export const accountResolvers = {
             }
         },
 
-        updateAccount: async (_, { input }, { req }) => {
+        updateAccount: async (_, { platform, input }, { req }) => {
             authenticateToken(req);
             try {
-                if (!input.link) {
-                    throw new Error("No update requested");
-                }
-                const account = await accounts.findOne({ platform: input.platform, username: input.username });
+                const account = await accounts.findOne({ platform: platform });
                 if (!account) {
                     throw new Error("Account not added");
                 }
-                if (account.link === input.link) {
+                if (account.username === input.username && account.link === input.link) {
                     throw new Error("Nothing to update");
                 }
                 const updatedAccount = await accounts.findOneAndUpdate(
-                    { platform: input.platform, username: input.username },
-                    { link: input.link },
+                    { platform: platform },
+                    { link: input.link, username: input.username },
                     { new: true }
                 );
                 return updatedAccount;
