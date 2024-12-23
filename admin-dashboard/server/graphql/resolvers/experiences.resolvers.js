@@ -37,6 +37,9 @@ export const experienceResolvers = {
         createExperience: async (_, { input }, { req }) => {
             authenticateToken(req);
             try {
+                const lastExperience = await experiences.findOne().sort({serialNo: -1});
+                const nextSerialNo = lastExperience ? lastExperience.serialNo + 1 : 1;
+                input.serialNo = nextSerialNo;
                 const experience = await experiences.findOne({ serialNo: input.serialNo });
                 if (experience) {
                     throw new Error("Experience already added.");
@@ -70,7 +73,14 @@ export const experienceResolvers = {
                     input,
                     { new: true }
                 );
-                return updatedExperience;
+                
+                return {...updatedExperience.toObject(),
+                    duration: {
+                        ...updatedExperience.duration,
+                        startDate: updatedExperience.duration.startDate ? convertToDate(updatedExperience.duration.startDate) : null,
+                        endDate: updatedExperience.duration.endDate ? convertToDate(updatedExperience.duration.endDate) : null
+                    }
+                };
             }
             catch (error) {
                 console.log(error.message);
@@ -86,6 +96,10 @@ export const experienceResolvers = {
                     throw new Error("Experience not added");
                 }
                 await experiences.findOneAndDelete({ serialNo });
+                const remainingExperiences = await experiences.find().sort({serialNo: 1});
+                for (let i=0; i<remainingExperiences.length; i++) {
+                    await experiences.updateOne({_id: remainingExperiences[i]._id}, {serialNo: i+1});
+                }
                 return { deleted: true, message: "Experience removed from portfolio" };
             }
             catch (error) {

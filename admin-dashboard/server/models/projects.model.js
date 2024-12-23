@@ -5,8 +5,11 @@ function wordCount(value) {
 }
 
 function isValidGitHubURL(value) {
-    const githubRegex = /^(https?:\/\/)?(www\.)?github\.com\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/?$/;
-    return githubRegex.test(value);
+    if (value!==null) {
+        const githubRegex = /^(https?:\/\/)?(www\.)?github\.com\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/?$/;
+        return githubRegex.test(value);
+    }
+    return true;
 }
 
 const projectSchema = new mongoose.Schema({

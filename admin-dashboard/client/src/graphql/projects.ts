@@ -23,3 +23,15 @@ export const addNewProject = gql`
         }
     }
 `;
+
+export const updateProject = gql`
+    mutation UpdateProject($name: ID!, $input: ProjectUpdateInput!) {
+        updateProject(name: $name, input: $input) {
+            name
+            description
+            techStack
+            link
+            deployment
+        }
+    }
+`;

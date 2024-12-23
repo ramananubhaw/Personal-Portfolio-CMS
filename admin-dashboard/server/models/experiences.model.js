@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 function wordCount(value) {
+    if (value===null) return true;
     return value.split(' ').filter(word => word.length > 0).length <= 50;
 }
 
@@ -46,7 +47,9 @@ const experienceSchema = new mongoose.Schema({
     },
     companyAddress: {
         type: String,
-        required: true,
+        required: function() {
+            return this.mode === "On-site";
+        },
         validate: {
             validator: wordCount,
             message: "Company address should not be more than 50 words."

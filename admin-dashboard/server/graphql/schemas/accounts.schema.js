@@ -12,8 +12,7 @@ export const accountTypeDefs = `
     }
 
     input AccountUpdateInput {
-        platform: String!
-        username: String!
+        username: String
         link: String
     }
 
@@ -24,7 +23,7 @@ export const accountTypeDefs = `
 
     extend type Mutation {
         addAccount(input: AccountInput!): Account
-        updateAccount(input: AccountUpdateInput!): Account
+        updateAccount(platform: ID!, input: AccountUpdateInput!): Account
         deleteAccount(platform: ID!, username: ID!): DeleteResponse
     }
 `;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import MainDiv from "./MainDiv";
-import { getAllProjects, addNewProject } from "../graphql/projects";
+import { getAllProjects, addNewProject, updateProject } from "../graphql/projects";
 import { useQuery, useMutation } from "@apollo/client";
 import NotAvailable from "./NotAvailable";
 import DisplayCard from "./DisplayCard";
@@ -16,44 +16,14 @@ export default function Projects() {
     type Project = {
         name: string,
         description: string,
-        techStack: string[],
+        techStack: string[] | null,
         link: string | null,
         deployment: string | null,
-        editing: boolean,
-        disabled: boolean
+        editing?: boolean,
+        disabled?: boolean
     }
 
     const [projects, setProjects] = useState<Project[]> ([]);
-    
-    // const [projects, setProjects] = useState<Project[]> ([
-    //     {
-    //         name: "Complaint Box",
-    //         description: "Online complaint registration portal",
-    //         techStack: ["ReactJS", "ExpressJS", "MongoDB", "NodeJS"],
-    //         link: null,
-    //         deployment: null,
-    //         editing: false,
-    //         disabled: false
-    //     },
-    //     {
-    //         name: "NASA APOD Project",
-    //         description: "Basic React project using Vite",
-    //         techStack: ["ReactJS"],
-    //         link: null,
-    //         deployment: null,
-    //         editing: false,
-    //         disabled: false
-    //     },
-    //     {
-    //         name: "Iterative Zero",
-    //         description: "Personal Portfolio with Admin Dashboard",
-    //         techStack: ["NextJS", "ReactJS", "ExpressJS", "MongoDB", "TypeScript", "Tailwind CSS"],
-    //         link: null,
-    //         deployment: null,
-    //         editing: false,
-    //         disabled: false
-    //     }
-    // ]);
 
     const {error: error, data: data} = useQuery(getAllProjects);
 
@@ -70,13 +40,9 @@ export default function Projects() {
         }
     }, [data, error]);
 
-    function displayTechStack(techStack: string[]): string {
-        let ts = "";
-        for (let i=0; i<techStack.length-1; i++) {
-            ts += `${techStack[i]}, `;
-        }
-        ts += `${techStack[techStack.length-1]}`;
-        return ts;
+    function displayTechStack(techStack: string[] | null): string {
+        if (!techStack || techStack.length === 0) return "";
+        return techStack.join(", ");
     }
 
     function handleEditingState(p: Project) {
@@ -91,12 +57,80 @@ export default function Projects() {
         return projects.some((project: Project) => project.editing);
     }
 
-    function handleExistingProjectChange(e: React.ChangeEvent<HTMLInputElement>, p: Project, field: keyof Project) {
+    function handleExistingProjectChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, p: Project, field: keyof Project) {
+        const value = field==="techStack" ? e.target.value.split(", ") : e.target.value;
         setProjects((prevState: Project[]) => (
             prevState.map((project: Project) => (
-                project.name === p.name ? {...project, [field]: e.target.value} : {...project}
+                project.name === p.name ? {...project, [field]: value} : {...project}
             ))
         ))
+    }
+
+    // update existing project
+
+    const [update, {error: updateError, data: updatedData}] = useMutation(updateProject);
+
+    async function updateProjectDetails(project: Project) {
+        const originalProject: Project = data?.projects.find((proj: Project) => proj.name === project.name);
+        const isUnchanged = (): boolean => {
+            if (!originalProject) {
+                return false;
+            }
+            return Object.keys(project).every((key: string) => {
+                const field = key as keyof Project;
+                if (field==="techStack") {
+                    return JSON.stringify(project[field]) === JSON.stringify(originalProject[field]);
+                }
+                return project[field] === originalProject[field];
+            })
+        }
+        if (isUnchanged()) {
+            handleEditingState(project);
+            return;
+        }
+        const input = Object.fromEntries(
+            Object.entries(project).filter(([key]) => key !== "name" && key !== "__typename" && key !== "editing" && key !== "disabled")
+        );
+        try {
+            await update({
+                variables: {
+                    name: project.name,
+                    input: input
+                }
+            })
+            handleEditingState(project);
+        }
+        catch (error) {
+            console.log(error);
+            handleEditingState(project);
+        }
+    }
+
+    useEffect(() => {
+        if (updateError) {
+            console.log(updateError);
+            return;
+        }
+        if (updatedData && updatedData.updateProject) {
+            const updatedProject = updatedData.updateProject;
+            setProjects((prevState: Project[]) => (
+                prevState.map((project: Project) => project.name === updatedProject.name ? {...updatedProject, editing: false, disabled: false} : {...project})
+            ))
+        }
+    }, [updateError, updatedData]);
+
+    function cancelUpdate(project: Project) {
+        if (data) {
+            const originalProject: Project = data.projects.find((proj: Project) => proj.name === project.name);
+            setProjects((prevState) => (
+                prevState.map((proj: Project) => 
+                    proj.name === project.name ? {...originalProject, editing: false, disabled: false} : {...proj, editing: false, disabled: false}
+                )
+            ));
+        }
+        else {
+            setProjects([]);
+        }
     }
 
     // Add new project
@@ -104,7 +138,7 @@ export default function Projects() {
     const initialNewProjectValues = {
         name: "",
         description: "",
-        techStack: [""],
+        techStack: null,
         link: null,
         deployment: null,
         editing: false,
@@ -113,21 +147,26 @@ export default function Projects() {
 
     const [newProject, setNewProject] = useState<Project> (initialNewProjectValues);
 
-    function handleAddProjectClick() {
+    function handleAddProjectClick(action: "submit" | "cancel" | "none") {
         setProjects((prevState: Project[]) => (
             prevState.map((project: Project) => (
                 {...project, disabled: !project.disabled}
             ))
         ));
-        setNewProject((prevState: Project) => (
-            {...prevState, editing: !prevState.editing}
-        ));
+        if (action==="cancel") {
+            setNewProject(initialNewProjectValues);
+        }
+        else {
+            setNewProject((prevState: Project) => (
+                {...prevState, editing: !prevState.editing}
+            ));
+        }
     }
 
-    function handleNewProjectChange(e: React.ChangeEvent<HTMLInputElement>, field: keyof Project) {
+    function handleNewProjectChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof Project) {
         let value;
         if (field === "techStack") {
-            value = e.target.value ? e.target.value.split(", ").map(item => item.trim()) : [""];
+            value = e.target.value ? e.target.value.split(", ") : null;
         }
         else {
             value = e.target.value;
@@ -139,48 +178,33 @@ export default function Projects() {
     }
     
 
-    // const [addProject, {error: addError, data: addedData}] = useMutation(addNewProject);
+    const [addProject, {error: addError, data: addedData}] = useMutation(addNewProject);
 
-    // useEffect(() => {
-    //     handleAddProjectClick();
-    //     setNewProject(initialNewProjectValues);
-    //     if (addError) {
-    //         console.log(addError);
-    //         return;
-    //     }
-    // }, [addError, addedData]);
+    useEffect(() => {
+        if (addError) {
+            console.log(addError);
+            setNewProject(initialNewProjectValues);
+            return;
+        }
+        if (addedData) {
+            // console.log(addedData);
+            const addedProject = {...addedData.createProject, editing: false, disabled: false}
+            setProjects((prevState) => [...prevState, addedProject]);
+            setNewProject(initialNewProjectValues);
+        }
+    }, [addedData, addError]);
 
-    // async function submitNewProject() {
-    //     const filteredProject = Object.fromEntries(
-    //         Object.entries(newProject).filter(([key]) => key !== "editing" && key !== "disabled")
-    //     );
-    //     const filteredInitialValues = Object.fromEntries(
-    //         Object.entries(initialNewProjectValues).filter(([key]) => key !== "editing" && key !== "disabled")
-    //     );
-    //     const isUnchanged: boolean = Object.keys(filteredProject).every((field) => {
-    //         if (field=="techStack") {
-    //             const techStackProject = filteredProject[field as keyof Project] as string[];
-    //             const techStackInitial = filteredInitialValues[field as keyof Project] as string[];
-    //             if (techStackProject.length !== techStackInitial.length) return false;
-    //             return techStackProject.every((value, index) => {
-    //                 return value === techStackInitial[index]
-    //             })
-    //         }
-    //         return filteredProject[field as keyof Project] === filteredInitialValues[field as keyof Project];
-    //     });
-    //     if (isUnchanged) {
-    //         handleAddProjectClick();
-    //         return;
-    //     }
-    //     try {
-    //         console.log(filteredProject);
-    //         await addProject({ variables: { input: filteredProject } });
-    //     }
-    //     catch (error) {
-    //         console.log(error);
-    //     }
-    //     handleAddProjectClick();
-    // }
+    function submitProjectDetails() {
+        const filteredProject = {...newProject}
+        delete filteredProject.editing;
+        delete filteredProject.disabled;
+        addProject({
+            variables: {
+                input: filteredProject
+            }
+        });
+        handleAddProjectClick("submit");
+    }
     
 
     const noProject: boolean = (projects.length === 0);
@@ -196,13 +220,13 @@ export default function Projects() {
                         <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
                             <FormElement label="Description" value={project.description} type="text" placeholder={project.editing ? "Enter here" : "None"} readOnly={!project.editing} onChange={(e) => handleExistingProjectChange(e, project, "description")} />
                             <FormElement label="Tech Stack" value={displayTechStack(project.techStack)} type="text" placeholder={project.editing ? "Enter here" : "None"} readOnly={!project.editing} onChange={(e) => handleExistingProjectChange(e, project, "techStack")} />
-                            <FormElement label="Project Link" value={project.link || ""} type="text" placeholder={project.editing ? "Enter here" : "None"} readOnly={!project.editing} onChange={(e) => handleExistingProjectChange(e, project, "link")} />
+                            <FormElement label="GitHub Link" value={project.link || ""} type="text" placeholder={project.editing ? "Enter here" : "None"} readOnly={!project.editing} onChange={(e) => handleExistingProjectChange(e, project, "link")} />
                             <FormElement label="Deployment Link" value={project.deployment || ""} type="text" placeholder={project.editing ? "Enter here" : "None"} readOnly={!project.editing} onChange={(e) => handleExistingProjectChange(e, project, "deployment")} />
                         </form>
                     </DisplayCard>
                     <div className="h-full w-1/12 flex flex-col space-y-6 justify-center items-center">
-                        {project.editing ? <CancelButton onClick={() => handleEditingState(project)} /> : <DeleteButton disabled={project.disabled} />}
-                        {project.editing ? <SaveButton onClick={() => handleEditingState(project)} /> : <EditButton onClick={() => handleEditingState(project)} disabled={project.disabled} />}
+                        {project.editing ? <CancelButton onClick={() => cancelUpdate(project)} /> : <DeleteButton disabled={project.disabled} />}
+                        {project.editing ? <SaveButton onClick={() => updateProjectDetails(project)} /> : <EditButton onClick={() => handleEditingState(project)} disabled={project.disabled} />}
                     </div>
                 </div>
             ))}
@@ -212,15 +236,15 @@ export default function Projects() {
                     <FormElement label="Name" value={newProject.name} type="text" onChange={(e) => handleNewProjectChange(e, "name")} />
                     <FormElement label="Description" value={newProject.description} type="text" onChange={(e) => handleNewProjectChange(e, "description")} />
                     <FormElement label="Tech Stack" value={displayTechStack(newProject.techStack)} placeholder="Enter separated by a comma and a whitespace ', '" type="text" onChange={(e) => handleNewProjectChange(e, "techStack")} />
-                    <FormElement label="Project Link" value={newProject.link || ""} type="text" onChange={(e) => handleNewProjectChange(e, "link")} />
+                    <FormElement label="GitHub Link" value={newProject.link || ""} type="text" onChange={(e) => handleNewProjectChange(e, "link")} />
                     <FormElement label="Deployment Link" value={newProject.deployment || ""} type="text" onChange={(e) => handleNewProjectChange(e, "deployment")} />
                     <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                        <Button className="bg-green-600 hover:bg-green-800" onClick={handleAddProjectClick}>Submit</Button>
-                        <Button className="bg-red-600 hover:bg-red-800" onClick={handleAddProjectClick}>Cancel</Button>
+                        <Button className="bg-green-600 hover:bg-green-800" onClick={submitProjectDetails}>Submit</Button>
+                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddProjectClick("cancel")}>Cancel</Button>
                     </div>
                 </form>
             </DisplayCard> : 
-            <Button disabled={disableAddButton()} onClick={handleAddProjectClick} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Project</Button>}
+            <Button disabled={disableAddButton()} onClick={() => handleAddProjectClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Project</Button>}
         </MainDiv>
     )
 }

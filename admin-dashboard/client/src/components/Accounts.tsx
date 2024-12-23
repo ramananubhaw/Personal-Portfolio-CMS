@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getAllAccounts } from "@/graphql/accounts";
-import { useQuery } from "@apollo/client";
+import { getAllAccounts, addNewAccount, updateAccount } from "@/graphql/accounts";
+import { useQuery, useMutation } from "@apollo/client";
 import MainDiv from "./MainDiv";
 import NotAvailable from "./NotAvailable";
 import DisplayCard from "./DisplayCard";
@@ -17,8 +17,8 @@ export default function Accounts() {
         username: string,
         platform: string,
         link: string,
-        editing: boolean,
-        disabled: boolean
+        editing?: boolean,
+        disabled?: boolean
     }
 
     const [accounts, setAccounts] = useState<Account[]> ([]);
@@ -31,6 +31,9 @@ export default function Accounts() {
             return;
         }
         if (data && data.getAllAccounts) {
+            data.getAllAccounts.map((account: Account) => (
+                {...account, editing: false, disabled: false}
+            ))
             setAccounts(data.getAllAccounts);
         }
     }, [data, error])
@@ -47,7 +50,7 @@ export default function Accounts() {
         return accounts.some((account: Account) => account.editing);
     }
 
-    function handleExistingAccountChange(e: React.ChangeEvent<HTMLInputElement>, a: Account, field: keyof Account) {
+    function handleExistingAccountChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, a: Account, field: keyof Account) {
         setAccounts((prevState: Account[]) => (
             prevState.map((account: Account) => (
                 account.platform === a.platform ? {...account, [field]: e.target.value} : {...account}
@@ -55,26 +58,124 @@ export default function Accounts() {
         ))
     }
 
-    const [newAccount, setNewAccount] = useState<Account> ({
+    // update existing account details
+
+    const [update, {error: updateError, data: updatedData}] = useMutation(updateAccount);
+
+    async function updateAccountDetails(account: Account) {
+        const originalAccount: Account = data?.getAllAccounts.find((acc: Account) => acc.platform === account.platform);
+        const isUnchanged = (): boolean => {
+            return (
+                account.username === originalAccount.username &&
+                account.link === originalAccount.link
+            )
+        }
+        if (isUnchanged()) {
+            handleEditingState(account);
+            return;
+        }
+        const input = Object.fromEntries(
+            Object.entries(account).filter(([key]) => key !== "platform" && key !== "__typename" && key !== "editing" && key !== "disabled")
+        );
+        try {
+            await update({
+                variables: {
+                    platform: account.platform,
+                    input: input
+                }
+            })
+            handleEditingState(account);
+        }
+        catch (error) {
+            console.log(error);
+            handleEditingState(account);
+        }
+    }
+
+    useEffect(() => {
+        if (updateError) {
+            console.log(updateError);
+            return;
+        }
+        if (updatedData && updatedData.updateAccount) {
+            const updatedAccount = updatedData.updateAccount;
+            setAccounts((prevState: Account[]) => (
+                prevState.map((account: Account) => 
+                    account.platform === updatedAccount.platform ? {...updatedAccount, editing: false, disabled: false} : {...account}
+                )
+            ))
+        }
+    }, [updateError, updatedData]);
+
+    function cancelUpdate(account: Account) {
+        if (data) {
+            const originalAccount: Account = data.getAllAccounts.find((acc: Account) => acc.platform === account.platform);
+            setAccounts((prevState: Account[]) => (
+                prevState.map((acc: Account) => acc.platform === account.platform ? {...originalAccount, editing: false, disabled: false} : {...acc, editing: false, disabled: false})
+            ))
+        }
+        else {
+            setAccounts([]);
+        }
+    }
+
+    // add new account
+
+    const initialNewAccountValues = {
         username: "",
         platform: "",
         link: "",
         editing: false,
         disabled: false
-    })
+    };
 
-    function handleAddAccountClick() {
+    const [newAccount, setNewAccount] = useState<Account> (initialNewAccountValues);
+
+    const [addAccount, {error: addError, data: addedAccount}] = useMutation(addNewAccount);
+
+    useEffect(() => {
+        if (addError) {
+            console.log(addError);
+            setNewAccount(initialNewAccountValues);
+            return;
+        }
+        if (addedAccount) {
+            // console.log(addedData);
+            const addedNewAccount = {...addedAccount.addAccount, editing: false, disabled: false}
+            setAccounts((prevState) => [...prevState, addedNewAccount]);
+            setNewAccount(initialNewAccountValues);
+        }
+    }, [addedAccount, addError]);
+
+    function submitAccountDetails() {
+        const filteredAccount = {...newAccount}
+        delete filteredAccount.editing;
+        delete filteredAccount.disabled;
+        addAccount({
+            variables: {
+                input: filteredAccount
+            }
+        });
+        handleAddAccountClick("submit");
+    }
+
+    function handleAddAccountClick(action: "submit" | "cancel" | "none") {
         setAccounts((prevState: Account[]) => (
             prevState.map((account: Account) => (
                 {...account, disabled: !account.disabled}
             ))
         ));
-        setNewAccount((prevState: Account) => (
-            {...prevState, editing: !prevState.editing}
-        ));
+        if (action==="cancel") {
+            setNewAccount(initialNewAccountValues);
+        }
+        else {
+            setNewAccount((prevState: Account) => (
+                {...prevState, editing: !prevState.editing}
+            ));
+        }
     }
 
-    function handleNewAccountChange(e: React.ChangeEvent<HTMLInputElement>, field: keyof Account) {
+    function handleNewAccountChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof Account) {
         setNewAccount((prevState: Account) => (
             {...prevState, [field]: e.target.value}
         ))
@@ -96,8 +197,8 @@ export default function Accounts() {
                         </form>
                     </DisplayCard>
                     <div className="h-full flex flex-col space-y-6 justify-center items-center">
-                        {account.editing ? <CancelButton onClick={() => handleEditingState(account)} /> : <DeleteButton disabled={account.disabled} />}
-                        {account.editing ? <SaveButton onClick={() => handleEditingState(account)} /> : <EditButton onClick={() => handleEditingState(account)} disabled={account.disabled} />}
+                        {account.editing ? <CancelButton onClick={() => cancelUpdate(account)} /> : <DeleteButton disabled={account.disabled} />}
+                        {account.editing ? <SaveButton onClick={() => updateAccountDetails(account)} /> : <EditButton onClick={() => handleEditingState(account)} disabled={account.disabled} />}
                     </div>
                 </div>
             ))}
@@ -108,12 +209,12 @@ export default function Accounts() {
                     <FormElement label="Username" value={newAccount.username} type="text" onChange={(e) => handleNewAccountChange(e, "username")} />
                     <FormElement label="Account Link" value={newAccount.link} type="text" onChange={(e) => handleNewAccountChange(e, "link")} />
                     <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                        <Button className="bg-green-600 hover:bg-green-800" onClick={handleAddAccountClick}>Submit</Button>
-                        <Button className="bg-red-600 hover:bg-red-800" onClick={handleAddAccountClick}>Cancel</Button>
+                        <Button className="bg-green-600 hover:bg-green-800" onClick={submitAccountDetails}>Submit</Button>
+                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddAccountClick("cancel")}>Cancel</Button>
                     </div>
                 </form>
             </DisplayCard> : 
-            <Button disabled={disableAddButton()} onClick={handleAddAccountClick} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Account</Button>}
+            <Button disabled={disableAddButton()} onClick={() => handleAddAccountClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Account</Button>}
         </MainDiv>
     )
 }

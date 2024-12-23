@@ -6,7 +6,7 @@ export const experienceTypeDefs = `
         category: String!
         companyName: String!
         duration: Duration!
-        companyAddress: String!
+        companyAddress: String
     }
 
     type Duration {
@@ -22,13 +22,12 @@ export const experienceTypeDefs = `
     }
 
     input ExperienceInput {
-        serialNo: Int!
         mode: String!
         role: String!
         category: String!
         companyName: String!
         duration: DurationInput!
-        companyAddress: String!
+        companyAddress: String
     }
 
     input ExperienceUpdateInput {

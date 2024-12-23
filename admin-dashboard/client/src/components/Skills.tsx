@@ -14,8 +14,8 @@ import SaveButton from "./buttons/SaveButton";
 export default function Skills() {
 
     type Certificate = {
-        name: string | null,
-        link: string | null
+        name: string,
+        link: string
     }
     
     type Skill = {
@@ -25,30 +25,6 @@ export default function Skills() {
         editing: boolean,
         disabled: boolean
     }
-
-    // const [skills, setSkills] = useState<Skill[]> ([
-    //     {
-    //         name: "ExpressJS",
-    //         category: "Backend Development",
-    //         certifications: null,
-    //         editing: false,
-    //         disabled: false
-    //     },
-    //     {
-    //         name: "ReactJS",
-    //         category: "Frontend Development",
-    //         certifications: null,
-    //         editing: false,
-    //         disabled: false
-    //     },
-    //     {
-    //         name: "C/C++",
-    //         category: "Programming Language(s)",
-    //         certifications: null,
-    //         editing: false,
-    //         disabled: false
-    //     }
-    // ]);
 
     const [skills, setSkills] = useState<Skill[]> ([]);
 
@@ -61,21 +37,24 @@ export default function Skills() {
         }
         if (data) {
             // console.log(data);
+            data.getAllSkills.map((skill: Skill) => (
+                {...skill, editing: false, disabled: false}
+            ))
             setSkills(data.getAllSkills);
         }
     }, [data, error]);
 
-    function displayCertifications(certifications: string[] | null): string {
-        if (certifications === null) {
-            return "None";
-        }
-        let cert = "";
-        for (let i=0; i<certifications.length-1; i++) {
-            cert += `${certifications[i]}, `;
-        }
-        cert += `${certifications[certifications.length-1]}`;
-        return cert;
-    }
+    // function displayCertifications(certifications: Certificate[] | null): string {
+    //     if (certifications === null) {
+    //         return "None";
+    //     }
+    //     let cert = "";
+    //     for (let i=0; i<certifications.length-1; i++) {
+    //         cert += `${certifications[i]}, `;
+    //     }
+    //     cert += `${certifications[certifications.length-1]}`;
+    //     return cert;
+    // }
 
     function handleEditingState(s: Skill) {
         setSkills((prevState: Skill[]) => (
@@ -89,7 +68,7 @@ export default function Skills() {
         return skills.some((skill: Skill) => skill.editing);
     }
 
-    function handleExistingSkillChange(e: React.ChangeEvent<HTMLInputElement>, s: Skill, field: keyof Skill) {
+    function handleExistingSkillChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, s: Skill, field: keyof Skill) {
         setSkills((prevState: Skill[]) => (
             prevState.map((skill: Skill) => (
                 skill.name === s.name ? {...skill, [field]: e.target.value} : {...skill}
@@ -97,26 +76,33 @@ export default function Skills() {
         ))
     }
 
-    const [newSkill, setNewSkill] = useState<Skill> ({
+    const initialNewSkillValues = {
         name: "",
         category: "",
         certifications: null,
         editing: false,
         disabled: false
-    })
+    };
 
-    function handleAddSkillClick() {
+    const [newSkill, setNewSkill] = useState<Skill> (initialNewSkillValues)
+
+    function handleAddSkillClick(action: "submit" | "cancel" | "none") {
         setSkills((prevState: Skill[]) => (
             prevState.map((skill: Skill) => (
                 {...skill, disabled: !skill.disabled}
             ))
         ));
-        setNewSkill((prevState: Skill) => (
-            {...prevState, editing: !prevState.editing}
-        ));
+        if (action==="cancel") {
+            setNewSkill(initialNewSkillValues);
+        }
+        else {
+            setNewSkill((prevState: Skill) => (
+                {...prevState, editing: !prevState.editing}
+            ));
+        }
     }
 
-    function handleNewSkillChange(e: React.ChangeEvent<HTMLInputElement>, field: keyof Skill) {
+    function handleNewSkillChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof Skill) {
         let value;
         if (field === "certifications") {
             value = e.target.value.split(', ');
@@ -141,7 +127,14 @@ export default function Skills() {
                         <h2 className="bg-inherit font-bold text-2xl pt-3 text-center">{skill.name}</h2>
                         <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
                             <FormElement label="Category" value={skill.category} type="text" readOnly={!skill.editing} onChange={(e) => handleExistingSkillChange(e, skill, "category")} />
-                            <FormElement label="Certifications" value={displayCertifications(skill.certifications)} type="text" readOnly={!skill.editing} onChange={(e) => handleExistingSkillChange(e, skill, "certifications")} />
+                            {skill.certifications ? (
+                                <div>
+                                    <h3>Certifications</h3>
+                                    <FormElement label="Certifications" value="" placeholder={skill.editing ? "Enter Here" : "None"} type="text" readOnly={!skill.editing} onChange={(e) => handleExistingSkillChange(e, skill, "certifications")} />
+                                </div>
+                            ) : (
+                                <FormElement label="Certifications" value="" placeholder={skill.editing ? "Enter Here" : "None"} type="text" readOnly={!skill.editing} onChange={(e) => handleExistingSkillChange(e, skill, "certifications")} />
+                            )}
                         </form>
                     </DisplayCard>
                     <div className="h-full flex flex-col space-y-6 justify-center items-center">
@@ -155,14 +148,14 @@ export default function Skills() {
                 <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
                     <FormElement label="Name" value={newSkill.name} type="text" onChange={(e) => handleNewSkillChange(e, "name")} />
                     <FormElement label="Category" value={newSkill.category} type="text" onChange={(e) => handleNewSkillChange(e, "category")} />
-                    <FormElement label="Certifications" value={displayCertifications(newSkill.certifications)} placeholder="Enter separated by a comma and a whitespace ', '" type="text" onChange={(e) => handleNewSkillChange(e, "certifications")} />
+                    <FormElement label="Certifications" value="" placeholder="Enter separated by a comma and a whitespace ', '" type="text" onChange={(e) => handleNewSkillChange(e, "certifications")} />
                     <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                        <Button className="bg-green-600 hover:bg-green-800" onClick={handleAddSkillClick}>Submit</Button>
-                        <Button className="bg-red-600 hover:bg-red-800" onClick={handleAddSkillClick}>Cancel</Button>
+                        <Button className="bg-green-600 hover:bg-green-800" onClick={() => handleAddSkillClick("submit")}>Submit</Button>
+                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddSkillClick("cancel")}>Cancel</Button>
                     </div>
                 </form>
             </DisplayCard> : 
-            <Button disabled={disableAddButton()} onClick={handleAddSkillClick} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Skill</Button>}
+            <Button disabled={disableAddButton()} onClick={() => handleAddSkillClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Skill</Button>}
         </MainDiv>
     )
 }
