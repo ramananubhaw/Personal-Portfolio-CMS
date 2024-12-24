@@ -78,10 +78,10 @@ export const projectResolvers = {
             try {
                 const project = await projects.findOne({ name });
                 if (!project) {
-                    throw new Error("Project not added");
+                    return { deleted: false, message: "Project not added" };
                 }
                 await projects.findOneAndDelete({ name });
-                return { deleted: true, message: "Project removed from portfolio" };
+                return { deleted: true, message: "Project removed from portfolio", id: name };
             }
             catch (error) {
                 console.log(error.message);

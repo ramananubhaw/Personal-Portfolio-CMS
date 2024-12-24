@@ -35,3 +35,13 @@ export const updateProject = gql`
         }
     }
 `;
+
+export const deleteProject = gql`
+    mutation DeleteProject($name: ID!) {
+        deleteProject(name: $name) {
+            deleted
+            message
+            id
+        }
+    }
+`;

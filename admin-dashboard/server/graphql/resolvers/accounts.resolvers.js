@@ -72,15 +72,15 @@ export const accountResolvers = {
             }
         },
 
-        deleteAccount: async (_, { platform, username }, { req }) => {
+        deleteAccount: async (_, { platform }, { req }) => {
             authenticateToken(req);
             try {
-                const account = await accounts.findOne({ platform, username });
+                const account = await accounts.findOne({ platform });
                 if (!account) {
-                    throw new Error("Account not added");
+                    return { deleted: false, message: "Account not added" };
                 }
-                await accounts.findOneAndDelete({ platform, username });
-                return { deleted: true, message: "Account removed" };
+                await accounts.findOneAndDelete({ platform });
+                return { deleted: true, message: "Account removed", id: platform };
             }
             catch (error) {
                 console.log(error.message);

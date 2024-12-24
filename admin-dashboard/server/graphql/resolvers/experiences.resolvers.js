@@ -93,14 +93,14 @@ export const experienceResolvers = {
             try {
                 const experience = await experiences.findOne({ serialNo });
                 if (!experience) {
-                    throw new Error("Experience not added");
+                    return { deleted: false, message: "Experience not added"};
                 }
                 await experiences.findOneAndDelete({ serialNo });
                 const remainingExperiences = await experiences.find().sort({serialNo: 1});
                 for (let i=0; i<remainingExperiences.length; i++) {
                     await experiences.updateOne({_id: remainingExperiences[i]._id}, {serialNo: i+1});
                 }
-                return { deleted: true, message: "Experience removed from portfolio" };
+                return { deleted: true, message: "Experience removed from portfolio", id: serialNo };
             }
             catch (error) {
                 console.log(error.message);
