@@ -10,6 +10,7 @@ const baseTypeDefs = `
     type DeleteResponse {
         deleted: Boolean!
         message: String!
+        id: ID
     }
 `;
 

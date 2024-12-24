@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAllExperiences, addExperience, updateExperience } from "@/graphql/experiences";
+import { getAllExperiences, addExperience, updateExperience, deleteExperience } from "@/graphql/experiences";
 import { useQuery, useMutation } from "@apollo/client";
 import MainDiv from "./MainDiv";
 import NotAvailable from "./NotAvailable";
@@ -33,7 +33,7 @@ export default function Experiences() {
 
     const [experiences, setExperiences] = useState<Experience[]> ([]);
 
-    const {error: error, data: data} = useQuery(getAllExperiences);
+    const {error: error, data: data, refetch: refetch} = useQuery(getAllExperiences);
 
     useEffect(() => {
         if (error) {
@@ -253,6 +253,41 @@ export default function Experiences() {
         handleAddExperienceClick("submit");
     }
 
+    // delete existing experience
+
+    const [deleteExperienceMutate, {error: deleteError, data: deleteData}] = useMutation(deleteExperience);
+    
+    async function deleteSelectedExperience(experience: Experience) {
+        try {
+            await deleteExperienceMutate({
+                variables: {
+                    serialNo: experience.serialNo
+                }
+            })
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+    
+    useEffect(() => {
+        if (deleteError) {
+            console.log(deleteError);
+            return;
+        }
+        if (deleteData && deleteData.deleteExperience) {
+            const deletedExperience = deleteData.deleteExperience;
+            console.log(deletedExperience);
+            alert(deletedExperience.message)
+            if (deletedExperience.deleted) {
+                // setExperiences((prevState: Experience[]) => (
+                //     prevState.filter((experience: Experience) => experience.serialNo !== deletedExperience.id)
+                // ))
+                refetch();
+            }
+        }
+    }, [deleteError, deleteData])
+
     const noExperience: boolean = (experiences.length === 0);
 
     return noExperience ? (
@@ -274,7 +309,7 @@ export default function Experiences() {
                         </form>
                     </DisplayCard>
                     <div className="h-full w-1/12 flex flex-col space-y-6 justify-center items-center">
-                        {experience.editing ? <CancelButton onClick={() => cancelUpdate(experience)} /> : <DeleteButton disabled={experience.disabled} />}
+                        {experience.editing ? <CancelButton onClick={() => cancelUpdate(experience)} /> : <DeleteButton disabled={experience.disabled} onClick={() => deleteSelectedExperience(experience)} />}
                         {experience.editing ? <SaveButton onClick={() => updateExperienceData(experience)} /> : <EditButton onClick={() => handleEditingState(experience)} disabled={experience.disabled} />}
                     </div>
                 </div>

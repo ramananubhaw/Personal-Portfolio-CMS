@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAllAccounts, addNewAccount, updateAccount } from "@/graphql/accounts";
+import { getAllAccounts, addNewAccount, updateAccount, deleteAccount } from "@/graphql/accounts";
 import { useQuery, useMutation } from "@apollo/client";
 import MainDiv from "./MainDiv";
 import NotAvailable from "./NotAvailable";
@@ -181,6 +181,41 @@ export default function Accounts() {
         ))
     }
 
+    // delete existing account
+
+    const [deleteAccountMutate, {error: deleteError, data: deleteData}] = useMutation(deleteAccount);
+
+    async function deleteSelectedAccount(account: Account) {
+        try {
+            await deleteAccountMutate({
+                variables: {
+                    platform: account.platform
+                }
+            })
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        if (deleteError) {
+            console.log(deleteError);
+            return;
+        }
+        if (deleteData && deleteData.deleteAccount) {
+            const deletedAccount = deleteData.deleteAccount;
+            console.log(deletedAccount);
+            alert(deletedAccount.message)
+            if (deletedAccount.deleted) {
+                setAccounts((prevState: Account[]) => (
+                    prevState.filter((account: Account) => account.platform !== deletedAccount.id)
+                ))
+            }
+        }
+    }, [deleteError, deleteData])
+
+
     const noAccount: boolean = (accounts.length === 0);
 
     return noAccount ? (
@@ -197,7 +232,7 @@ export default function Accounts() {
                         </form>
                     </DisplayCard>
                     <div className="h-full flex flex-col space-y-6 justify-center items-center">
-                        {account.editing ? <CancelButton onClick={() => cancelUpdate(account)} /> : <DeleteButton disabled={account.disabled} />}
+                        {account.editing ? <CancelButton onClick={() => cancelUpdate(account)} /> : <DeleteButton disabled={account.disabled} onClick={() => deleteSelectedAccount(account)} />}
                         {account.editing ? <SaveButton onClick={() => updateAccountDetails(account)} /> : <EditButton onClick={() => handleEditingState(account)} disabled={account.disabled} />}
                     </div>
                 </div>

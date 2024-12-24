@@ -53,3 +53,13 @@ export const updateExperience = gql`
         }
     }
 `;
+
+export const deleteExperience = gql`
+    mutation DeleteExperience($serialNo: Int!) {
+        deleteExperience(serialNo: $serialNo) {
+            message
+            deleted
+            id
+        }
+    }
+`;

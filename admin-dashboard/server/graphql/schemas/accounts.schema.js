@@ -24,6 +24,6 @@ export const accountTypeDefs = `
     extend type Mutation {
         addAccount(input: AccountInput!): Account
         updateAccount(platform: ID!, input: AccountUpdateInput!): Account
-        deleteAccount(platform: ID!, username: ID!): DeleteResponse
+        deleteAccount(platform: ID!): DeleteResponse
     }
 `;

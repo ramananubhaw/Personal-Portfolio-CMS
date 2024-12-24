@@ -29,3 +29,13 @@ export const updateAccount = gql`
         }
     }
 `;
+
+export const deleteAccount = gql`
+    mutation DeleteAccount($platform: ID!) {
+        deleteAccount(platform: $platform) {
+            deleted
+            message
+            id
+        }
+    }
+`;

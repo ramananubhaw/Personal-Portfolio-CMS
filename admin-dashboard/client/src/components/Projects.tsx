@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import MainDiv from "./MainDiv";
-import { getAllProjects, addNewProject, updateProject } from "../graphql/projects";
+import { getAllProjects, addNewProject, updateProject, deleteProject } from "../graphql/projects";
 import { useQuery, useMutation } from "@apollo/client";
 import NotAvailable from "./NotAvailable";
 import DisplayCard from "./DisplayCard";
@@ -205,7 +205,40 @@ export default function Projects() {
         });
         handleAddProjectClick("submit");
     }
+
+    // deleting existing project
+
+    const [deleteProjectMutate, {error: deleteError, data: deleteData}] = useMutation(deleteProject);
+
+    async function deleteSelectedProject(project: Project) {
+        try {
+            await deleteProjectMutate({
+                variables: {
+                    name: project.name
+                }
+            })
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
     
+    useEffect(() => {
+        if (deleteError) {
+            console.log(deleteError);
+            return;
+        }
+        if (deleteData && deleteData.deleteProject) {
+            const deletedProject = deleteData.deleteProject;
+            console.log(deletedProject);
+            alert(deletedProject.message)
+            if (deletedProject.deleted) {
+                setProjects((prevState: Project[]) => (
+                    prevState.filter((project: Project) => project.name !== deletedProject.id)
+                ))
+            }
+        }
+    }, [deleteError, deleteData])
 
     const noProject: boolean = (projects.length === 0);
 
@@ -225,7 +258,7 @@ export default function Projects() {
                         </form>
                     </DisplayCard>
                     <div className="h-full w-1/12 flex flex-col space-y-6 justify-center items-center">
-                        {project.editing ? <CancelButton onClick={() => cancelUpdate(project)} /> : <DeleteButton disabled={project.disabled} />}
+                        {project.editing ? <CancelButton onClick={() => cancelUpdate(project)} /> : <DeleteButton disabled={project.disabled} onClick={() => deleteSelectedProject(project)} />}
                         {project.editing ? <SaveButton onClick={() => updateProjectDetails(project)} /> : <EditButton onClick={() => handleEditingState(project)} disabled={project.disabled} />}
                     </div>
                 </div>
