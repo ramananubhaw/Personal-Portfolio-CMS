@@ -21,6 +21,30 @@ export default {
         'mntsrt': 'montserrat'
       }
     },
+    keyframes: {
+      breathing: {
+        '0%, 100%': {
+          transform: 'scale(1) translate(-20px, -20px)',
+          opacity: '0.3',
+        },
+        '25%': {
+          transform: 'scale(1.15) translate(20px, -20px)',
+          opacity: '0.25',
+        },
+        '50%': {
+          transform: 'scale(1) translate(20px, -20px)',
+          opacity: '0.35',
+        },
+        '75%': {
+          transform: 'scale(0.85) translate(20px, 20px)',
+          opacity: '0.25',
+        },
+      },
+    },
+    animation: {
+      breathing: 'breathing 10s ease-in-out infinite',
+    },
   },
+  
   plugins: [],
 } satisfies Config;

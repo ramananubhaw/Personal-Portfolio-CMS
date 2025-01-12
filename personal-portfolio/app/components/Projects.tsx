@@ -1,7 +1,12 @@
+import MainCard from "./MainCard";
+import Heading from "./Heading";
+// import BlurCircle from "./BlurCircle";
+
 export default function Projects() {
     return (
-        <div className="font-mntsrt">
-            Projects Page
-        </div>
+        <MainCard>
+            <Heading first="MY" second="PROJECTS" />
+            {/* <BlurCircle size='25rem' op={0.3} /> */}
+        </MainCard>
     )
 }
