@@ -26,6 +26,7 @@ export default function Home() {
   return (
     <div>
       <Navbar navigatePage={navigatePage} navs={navs} />
+      <div className="min-h-24"></div>
       {navs.about && <About />}
       {navs.skills && <Skills />}
       {navs.experience && <Experience />}
