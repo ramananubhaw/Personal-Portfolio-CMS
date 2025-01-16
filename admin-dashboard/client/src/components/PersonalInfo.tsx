@@ -19,6 +19,7 @@ export default function PersonalInfo() {
         dob: string;
         phone: string;
         country: string;
+        resumeLink: string | null;
     }
 
     const [personalInfo, setPersonalInfo] = useState<PersonalInfo> ({
@@ -26,7 +27,8 @@ export default function PersonalInfo() {
         email: "",
         dob: "",
         phone: "",
-        country: ""
+        country: "",
+        resumeLink: null
     })
 
     const { error: error, data: data } = useQuery(getPersonalInfo);
@@ -106,7 +108,8 @@ export default function PersonalInfo() {
                 email: "",
                 dob: "",
                 phone: "",
-                country: ""
+                country: "",
+                resumeLink: null
             });
         }
         handleEditingState();
@@ -223,6 +226,7 @@ export default function PersonalInfo() {
                         <FormElement label="Date of Birth" value={personalInfo.dob} type="date" readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "dob")} />
                         <FormElement label="Phone" value={personalInfo.phone} type="number" placeholder={editing ? "Enter here" : "None"} readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "phone")} />
                         <FormElement label="Country" value={personalInfo.country} type="text" placeholder={editing ? "Enter here" : "None"} readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "country")} />
+                        <FormElement label="Resume Link" value={personalInfo.resumeLink || ""} type="text" placeholder={editing ? "Enter here" : "None"} readOnly={!editing} onChange={(e) => handlePersonalInfoChange(e, "resumeLink")} />
                     </form>
                 </DisplayCard>
                 <div className="flex flex-col space-y-6 justify-center items-center">

@@ -21,7 +21,7 @@ export default function Skills() {
     type Skill = {
         name: string,
         category: string,
-        certifications: null | Certificate[],
+        certifications: Certificate[] | null,
         editing: boolean,
         disabled: boolean
     }
@@ -35,7 +35,7 @@ export default function Skills() {
             console.log(error);
             return;
         }
-        if (data) {
+        if (data && data.getAllSkills) {
             // console.log(data);
             data.getAllSkills.map((skill: Skill) => (
                 {...skill, editing: false, disabled: false}

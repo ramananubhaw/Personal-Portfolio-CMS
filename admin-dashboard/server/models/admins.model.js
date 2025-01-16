@@ -25,6 +25,10 @@ const adminSchema = new mongoose.Schema({
     country: {
         type: String,
         required: true
+    },
+    resumeLink: {
+        type: String
+        // required: true
     }
 });
 

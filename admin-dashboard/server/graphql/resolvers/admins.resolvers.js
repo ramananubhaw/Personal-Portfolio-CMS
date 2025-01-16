@@ -28,7 +28,7 @@ export const adminResolvers = {
         },
 
         admins: async (_, __, {req}) => {
-            authenticateToken(req);
+            // authenticateToken(req);
             try {
                 const allAdmins = await admins.find();
                 if (allAdmins.length === 0) {
