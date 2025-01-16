@@ -31,6 +31,7 @@ export default function Accounts() {
             return;
         }
         if (data && data.getAllAccounts) {
+            // console.log(data.getAllAccounts);
             data.getAllAccounts.map((account: Account) => (
                 {...account, editing: false, disabled: false}
             ))

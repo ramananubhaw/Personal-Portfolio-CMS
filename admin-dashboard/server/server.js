@@ -15,7 +15,7 @@ const app = express();
 
 //server configuration
 app.use(cors({
-    origin: process.env.ADMIN_FRONTEND,
+    origin: [process.env.ADMIN_FRONTEND, process.env.PORTFOLIO_FRONTEND],
     credentials: true
 }));
 app.use(cookieParser());

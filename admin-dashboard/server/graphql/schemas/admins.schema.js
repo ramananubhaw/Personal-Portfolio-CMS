@@ -6,6 +6,7 @@ export const adminTypeDefs = `
         dob: String!
         phone: String!
         country: String!
+        resumeLink: String
     }
 
     input AdminInput {
@@ -15,6 +16,7 @@ export const adminTypeDefs = `
         phone: String!
         country: String!
         password: String!
+        resumeLink: String
     }
 
     input AdminLoginInput {
@@ -38,6 +40,7 @@ export const adminTypeDefs = `
         dob: String
         phone: String
         country: String
+        resumeLink: String
     }
 
     extend type Query {

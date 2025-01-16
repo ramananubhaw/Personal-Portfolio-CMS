@@ -8,6 +8,7 @@ export const getPersonalInfo = gql`
             dob
             phone
             country
+            resumeLink
         }
     }
 `;
@@ -20,6 +21,7 @@ export const updatePersonalInfo = gql`
             dob
             phone
             country
+            resumeLink
         }
     }
 `;

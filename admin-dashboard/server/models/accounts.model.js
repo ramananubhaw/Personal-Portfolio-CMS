@@ -13,12 +13,6 @@ const accountSchema = new mongoose.Schema({
     link: {
         type: String,
         required: true,
-        validate: {
-            validator: function(v) {
-                return /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+\.[a-z]{2,}(\/[a-zA-Z0-9-]+)*\/?$/.test(v);
-            },
-            message: 'Please enter a valid URL.'
-        }
     }
 });
 
