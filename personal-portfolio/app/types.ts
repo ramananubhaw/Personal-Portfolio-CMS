@@ -16,3 +16,11 @@ export type PersonalInfo = {
     phone: string,
     resumeLink: string
 }
+
+export type Project = {
+    name: string,
+    description: string,
+    techStack: string[] | null,
+    link: string | null,
+    deployment: string | null
+}
