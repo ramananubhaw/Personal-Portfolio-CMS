@@ -14,8 +14,19 @@ export const getPersonalInfo = gql`
         admins {
             name
             email
-            phone
             resumeLink
+        }
+    }
+`;
+
+export const getAllProjects = gql`
+    query GetAllProjects {
+        projects {
+            name
+            description
+            techStack
+            link
+            deployment
         }
     }
 `;
