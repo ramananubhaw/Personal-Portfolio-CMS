@@ -2,25 +2,43 @@ import MainCard from "./MainCard";
 import Heading from "./Heading";
 import { Project } from "../types";
 import { MdOpenInNew } from "react-icons/md";
+import { useState, useEffect } from "react";
+import { useQuery } from "@apollo/client";
+import { getAllProjects } from "../graphql-queries";
 
 export default function Projects() {
 
-    const projects: Project[] = [
-        {
-            name: "Admin Dashboard for Personal Portfolio",
-            description: "A dashboard to manage the personal portfolio of a developer with no data hard-coded, which makes it easy for the developer to make changes in the portfolio.",
-            techStack: ["Next.js", "React.js", "Express.js", "MongoDB", "TypeScript", "Tailwind CSS", "Aceternity UI", "shadcn/ui"],
-            link: null,
-            deployment: null
-        },
-        {
-            name: "NASA App",
-            description: "A dashboard to manage the personal portfolio of a developer with no data hard-coded, which makes it easy for the developer to make changes in the portfolio.",
-            techStack: ["Next.js", "React.js", "Express.js", "MongoDB", "TypeScript", "Tailwind CSS", "Aceternity UI", "shadcn/ui"],
-            link: null,
-            deployment: null
+    // const projects: Project[] = [
+    //     {
+    //         name: "Admin Dashboard for Personal Portfolio",
+    //         description: "A dashboard to manage the personal portfolio of a developer with no data hard-coded, which makes it easy for the developer to make changes in the portfolio.",
+    //         techStack: ["Next.js", "React.js", "Express.js", "MongoDB", "TypeScript", "Tailwind CSS", "Aceternity UI", "shadcn/ui"],
+    //         link: null,
+    //         deployment: null
+    //     },
+    //     {
+    //         name: "NASA App",
+    //         description: "A dashboard to manage the personal portfolio of a developer with no data hard-coded, which makes it easy for the developer to make changes in the portfolio.",
+    //         techStack: ["Next.js", "React.js", "Express.js", "MongoDB", "TypeScript", "Tailwind CSS", "Aceternity UI", "shadcn/ui"],
+    //         link: null,
+    //         deployment: null
+    //     }
+    // ]
+
+    const [projects, setProjects] = useState<Project[]> ([]);
+
+    const { error: error, data: data } = useQuery(getAllProjects);
+
+    useEffect(() => {
+        if (error) {
+            console.log(error);
+            return;
         }
-    ]
+        if (data && data.projects) {
+            setProjects(data.projects);
+            // console.log(data);
+        }
+    }, [data, error]);
 
     function displayTechStack(techStack: string[] | null): string {
         if (techStack===null) {
@@ -37,21 +55,22 @@ export default function Projects() {
     return (
         <MainCard>
             <Heading first="MY" second="PROJECTS" />
-            <div className="mx-48 my-8">
+            {projects.length>0 && 
+            <div className="mx-48 my-12">
                 {projects.map((project: Project) => (
-                    <div className="flex mb-8 w-180 flex-shrink-0 flex-grow-0" key={project.name}>
+                    <div className="flex mb-12 w-180 flex-shrink-0 flex-grow-0" key={project.name}>
                         <div className="w-80 flex-shrink-0 text-light-green bg-transparent font-bold text-2xl flex justify-start  items-center p-4">{project.name}</div>
-                        <div className="w-100 text-white bg-white/5 flex flex-col gap-y-6 p-6 rounded-xl flex-grow-0 overflow-hidden text-wrap">
-                            <p className="bg-transparent w-full max-w-full text-wrap">{project.description}</p>
+                        <div className="w-3/5 max-w-3/5 min-w-3/5 text-white bg-white/5 p-6 rounded-xl overflow-hidden text-wrap">
+                            <p className="bg-transparent w-full max-w-full text-wrap break-words mb-6">{project.description}</p>
                             <p className="bg-transparent"><b className="bg-transparent">Tech Stack - </b>{displayTechStack(project.techStack)}</p>
-                            <div className="flex justify-center gap-x-12 bg-transparent">
-                                <p className="bg-transparent"><b className="bg-transparent flex justify-center items-center">GitHub&nbsp;&nbsp;<MdOpenInNew className="bg-transparent text-white hover:cursor-pointer" /></b>{project.link}</p>
-                                <p className="bg-transparent"><b className="bg-transparent flex justify-center items-center">Deployment&nbsp;&nbsp;<MdOpenInNew className="bg-transparent text-white hover:cursor-pointer" /></b>{project.deployment}</p>
-                            </div>
+                            {(project.link || project.deployment) && (<div className="flex justify-center gap-x-12 bg-transparent w-full mt-6">
+                                {project.link && (<p className="bg-transparent"><b className="bg-transparent flex justify-center items-center">GitHub&nbsp;&nbsp;<a href={project.link} target="_blank" className="bg-transparent"><MdOpenInNew className="bg-transparent text-white hover:cursor-pointer" /></a></b></p>)}
+                                {project.deployment && (<p className="bg-transparent"><b className="bg-transparent flex justify-center items-center">Deployment&nbsp;&nbsp;<a href={project.deployment} target="_blank" className="bg-transparent"><MdOpenInNew className="bg-transparent text-white hover:cursor-pointer" /></a></b></p>)}
+                            </div>)}
                         </div>
                     </div>
                 ))}
-            </div>
+            </div>}
         </MainCard>
     )
 }
