@@ -72,7 +72,7 @@ export default function PersonalInfo() {
         }
     
         try {
-            const { __typename, ...inputData } = personalInfo;
+            const { __typename, ...inputData } = personalInfo as PersonalInfo & {__typename: string};
             const changedFields = Object.fromEntries(
                 Object.entries(inputData).filter(([key, value]) => {
                     return value !== data.admin[key as keyof PersonalInfo];
@@ -213,7 +213,7 @@ export default function PersonalInfo() {
 
     return noInfo ? (
         <>
-            <NotAvailable message="Personal Information not available" button="Add Personal Info" />
+            <NotAvailable message="Personal Information not available" />
         </>
     ) : (
         <div className="w-full h-screen flex flex-col justify-center gap-y-16 items-center">

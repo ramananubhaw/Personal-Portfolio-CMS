@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { getAllSkills } from "@/graphql/skills";
 import { useQuery } from "@apollo/client";
 import MainDiv from "./MainDiv";
@@ -115,10 +115,28 @@ export default function Skills() {
         console.log(newSkill.certifications);
     }
 
+    function renderAddSkill(): ReactNode {
+        return (
+            (newSkill.editing) ? 
+            <DisplayCard className="w-1/2 mb-12">
+                <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
+                    <FormElement label="Name" value={newSkill.name} type="text" onChange={(e) => handleNewSkillChange(e, "name")} />
+                    <FormElement label="Category" value={newSkill.category} type="text" onChange={(e) => handleNewSkillChange(e, "category")} />
+                    <FormElement label="Certifications" value="" placeholder="Enter separated by a comma and a whitespace ', '" type="text" onChange={(e) => handleNewSkillChange(e, "certifications")} />
+                    <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
+                        <Button className="bg-green-600 hover:bg-green-800" onClick={() => handleAddSkillClick("submit")}>Submit</Button>
+                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddSkillClick("cancel")}>Cancel</Button>
+                    </div>
+                </form>
+            </DisplayCard> : 
+            <Button disabled={disableAddButton()} onClick={() => handleAddSkillClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Skill</Button>
+        )
+    }
+
     const noSkills: boolean = (skills.length === 0);
 
     return noSkills ? (
-        <NotAvailable message="No skill added" button="Add skill" />
+        <NotAvailable message="No skill added" render={renderAddSkill} />
     ) : (
         <MainDiv>
             {skills.map((skill) => (
@@ -143,19 +161,7 @@ export default function Skills() {
                     </div>
                 </div>
             ))}
-            {(newSkill.editing) ? 
-            <DisplayCard className="w-1/2 mb-12">
-                <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
-                    <FormElement label="Name" value={newSkill.name} type="text" onChange={(e) => handleNewSkillChange(e, "name")} />
-                    <FormElement label="Category" value={newSkill.category} type="text" onChange={(e) => handleNewSkillChange(e, "category")} />
-                    <FormElement label="Certifications" value="" placeholder="Enter separated by a comma and a whitespace ', '" type="text" onChange={(e) => handleNewSkillChange(e, "certifications")} />
-                    <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                        <Button className="bg-green-600 hover:bg-green-800" onClick={() => handleAddSkillClick("submit")}>Submit</Button>
-                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddSkillClick("cancel")}>Cancel</Button>
-                    </div>
-                </form>
-            </DisplayCard> : 
-            <Button disabled={disableAddButton()} onClick={() => handleAddSkillClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Skill</Button>}
+            {renderAddSkill()}
         </MainDiv>
     )
 }

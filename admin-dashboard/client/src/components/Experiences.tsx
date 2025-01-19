@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { getAllExperiences, addExperience, updateExperience, deleteExperience } from "@/graphql/experiences";
 import { useQuery, useMutation } from "@apollo/client";
 import MainDiv from "./MainDiv";
@@ -288,10 +288,32 @@ export default function Experiences() {
         }
     }, [deleteError, deleteData])
 
+    function renderAddExperience(): ReactNode {
+        return (
+            (newExperience.editing) ? 
+            <DisplayCard className="w-3/5 mb-12">
+                <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
+                    <FormElement label="Mode" value={newExperience.mode} type="text" selectOptions={["On-site", "Remote"]} onChange={(e) => handleNewExperienceChange(e, "mode")} />
+                    <FormElement label="Role" value={newExperience.role} type="text" readOnly={!newExperience.editing} onChange={(e) => handleNewExperienceChange(e, "role")} />
+                    <FormElement label="Category" value={newExperience.category} type="text" selectOptions={["Full-time", "Internship", "Contractual", "Freelance", "Club"]} onChange={(e) => handleNewExperienceChange(e, "category")} />
+                    <FormElement label="Company Name" value={newExperience.companyName} type="text" onChange={(e) => handleNewExperienceChange(e, "companyName")} />
+                    <FormElement label="Start Date" value={newExperience.duration.startDate} type="date" onChange={(e) => handleNewExperienceChange(e, "duration", "startDate")} />
+                    <FormElement label="End Date" value={newExperience.duration.endDate ? newExperience.duration.endDate : ""} type="date" onChange={(e) => handleNewExperienceChange(e, "duration", "endDate")} />
+                    <FormElement label="Location" value={newExperience.companyAddress || ""} type="text" onChange={(e) => handleNewExperienceChange(e, "companyAddress")} />
+                    <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
+                        <Button className="bg-green-600 hover:bg-green-800" onClick={submitExperienceDetails}>Submit</Button>
+                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddExperienceClick("cancel")}>Cancel</Button>
+                    </div>
+                </form>
+            </DisplayCard> : 
+            <Button disabled={disableAddButton()} onClick={() => handleAddExperienceClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Experience</Button>
+        )
+    }
+
     const noExperience: boolean = (experiences.length === 0);
 
     return noExperience ? (
-        <NotAvailable message="No experience added" button="Add Experience" />
+        <NotAvailable message="No experience added" render={renderAddExperience} />
     ) : (
         <MainDiv>
             {experiences.map((experience) => (
@@ -314,23 +336,7 @@ export default function Experiences() {
                     </div>
                 </div>
             ))}
-            {(newExperience.editing) ? 
-            <DisplayCard className="w-3/5 mb-12">
-                <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
-                    <FormElement label="Mode" value={newExperience.mode} type="text" selectOptions={["On-site", "Remote"]} onChange={(e) => handleNewExperienceChange(e, "mode")} />
-                    <FormElement label="Role" value={newExperience.role} type="text" readOnly={!newExperience.editing} onChange={(e) => handleNewExperienceChange(e, "role")} />
-                    <FormElement label="Category" value={newExperience.category} type="text" selectOptions={["Full-time", "Internship", "Contractual", "Freelance", "Club"]} onChange={(e) => handleNewExperienceChange(e, "category")} />
-                    <FormElement label="Company Name" value={newExperience.companyName} type="text" onChange={(e) => handleNewExperienceChange(e, "companyName")} />
-                    <FormElement label="Start Date" value={newExperience.duration.startDate} type="date" onChange={(e) => handleNewExperienceChange(e, "duration", "startDate")} />
-                    <FormElement label="End Date" value={newExperience.duration.endDate ? newExperience.duration.endDate : ""} type="date" onChange={(e) => handleNewExperienceChange(e, "duration", "endDate")} />
-                    <FormElement label="Location" value={newExperience.companyAddress || ""} type="text" onChange={(e) => handleNewExperienceChange(e, "companyAddress")} />
-                    <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                        <Button className="bg-green-600 hover:bg-green-800" onClick={submitExperienceDetails}>Submit</Button>
-                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddExperienceClick("cancel")}>Cancel</Button>
-                    </div>
-                </form>
-            </DisplayCard> : 
-            <Button disabled={disableAddButton()} onClick={() => handleAddExperienceClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Experience</Button>}
+            {renderAddExperience()}
         </MainDiv>
     )
 }

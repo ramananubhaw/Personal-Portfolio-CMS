@@ -46,7 +46,7 @@ export default function Experience() {
                         <div className="w-1/4 text-light-green bg-transparent font-bold text-2xl flex justify-start items-center p-4">{experience.category}</div>
                         <div className="w-3/4 text-white bg-white/5 p-6 rounded-xl overflow-hidden">
                             <div className="w-full flex bg-transparent justify-between items-center">
-                                <p className="bg-transparent"><b className="bg-transparent">Company - </b>{experience.companyName}</p>
+                                <p className="bg-transparent"><b className="bg-transparent text-light-green">{experience.companyName}</b></p>
                                 <p className="bg-transparent text-light-green">{experience.mode}</p>
                             </div>
                             <p className="bg-transparent mt-4"><b className="bg-transparent">Role - </b>{experience.role}</p>
