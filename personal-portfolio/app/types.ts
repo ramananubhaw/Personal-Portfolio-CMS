@@ -23,3 +23,19 @@ export type Project = {
     link: string | undefined,
     deployment: string | undefined
 }
+
+type DurationObject = {
+    startDate: string,
+    endDate: null | string,
+    isCurrent: boolean
+}
+
+export type ExperienceType = {
+    serialNo: number,
+    mode: string,
+    role: string,
+    category: string,
+    companyName: string,
+    duration: DurationObject,
+    companyAddress: string | null
+}

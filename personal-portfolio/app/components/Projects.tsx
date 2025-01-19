@@ -56,11 +56,11 @@ export default function Projects() {
         <MainCard>
             <Heading first="MY" second="PROJECTS" />
             {projects.length>0 && 
-            <div className="mx-48 my-12">
+            <div className="mx-44 w-1/2 my-12">
                 {projects.map((project: Project) => (
                     <div className="flex mb-12 w-180 flex-shrink-0 flex-grow-0" key={project.name}>
-                        <div className="w-80 flex-shrink-0 text-light-green bg-transparent font-bold text-2xl flex justify-start  items-center p-4">{project.name}</div>
-                        <div className="w-3/5 max-w-3/5 min-w-3/5 text-white bg-white/5 p-6 rounded-xl overflow-hidden text-wrap">
+                        <div className="w-1/3 flex-shrink-0 text-light-green bg-transparent font-bold text-2xl flex justify-start  items-center p-4">{project.name}</div>
+                        <div className="w-2/3 max-w-3/5 min-w-3/5 text-white bg-white/5 p-6 rounded-xl overflow-hidden text-wrap">
                             <p className="bg-transparent w-full max-w-full text-wrap break-words mb-6">{project.description}</p>
                             <p className="bg-transparent"><b className="bg-transparent">Tech Stack - </b>{displayTechStack(project.techStack)}</p>
                             {(project.link || project.deployment) && (<div className="flex justify-center gap-x-12 bg-transparent w-full mt-6">
