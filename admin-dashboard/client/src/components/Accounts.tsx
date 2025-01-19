@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { getAllAccounts, addNewAccount, updateAccount, deleteAccount } from "@/graphql/accounts";
 import { useQuery, useMutation } from "@apollo/client";
 import MainDiv from "./MainDiv";
@@ -216,11 +216,28 @@ export default function Accounts() {
         }
     }, [deleteError, deleteData])
 
+    function renderAddAccount(): ReactNode {
+        return (
+            (newAccount.editing) ? 
+            <DisplayCard className="w-1/2 mb-12">
+                <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
+                    <FormElement label="Platform" value={newAccount.platform} type="text" onChange={(e) => handleNewAccountChange(e, "platform")} />
+                    <FormElement label="Username" value={newAccount.username} type="text" onChange={(e) => handleNewAccountChange(e, "username")} />
+                    <FormElement label="Account Link" value={newAccount.link} type="text" onChange={(e) => handleNewAccountChange(e, "link")} />
+                    <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
+                        <Button className="bg-green-600 hover:bg-green-800" onClick={submitAccountDetails}>Submit</Button>
+                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddAccountClick("cancel")}>Cancel</Button>
+                    </div>
+                </form>
+            </DisplayCard> : 
+            <Button disabled={disableAddButton()} onClick={() => handleAddAccountClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Account</Button>
+        )
+    }
 
     const noAccount: boolean = (accounts.length === 0);
 
     return noAccount ? (
-        <NotAvailable message="No account added" button="Add account" />
+        <NotAvailable message="No account added" render={renderAddAccount} />
     ) : (
         <MainDiv>
             {accounts.map((account) => (
@@ -238,19 +255,7 @@ export default function Accounts() {
                     </div>
                 </div>
             ))}
-            {(newAccount.editing) ? 
-            <DisplayCard className="w-1/2 mb-12">
-                <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
-                    <FormElement label="Platform" value={newAccount.platform} type="text" onChange={(e) => handleNewAccountChange(e, "platform")} />
-                    <FormElement label="Username" value={newAccount.username} type="text" onChange={(e) => handleNewAccountChange(e, "username")} />
-                    <FormElement label="Account Link" value={newAccount.link} type="text" onChange={(e) => handleNewAccountChange(e, "link")} />
-                    <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                        <Button className="bg-green-600 hover:bg-green-800" onClick={submitAccountDetails}>Submit</Button>
-                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddAccountClick("cancel")}>Cancel</Button>
-                    </div>
-                </form>
-            </DisplayCard> : 
-            <Button disabled={disableAddButton()} onClick={() => handleAddAccountClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Account</Button>}
+            {renderAddAccount()}
         </MainDiv>
     )
 }

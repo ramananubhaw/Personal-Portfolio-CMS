@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import MainDiv from "./MainDiv";
 import { getAllProjects, addNewProject, updateProject, deleteProject } from "../graphql/projects";
 import { useQuery, useMutation } from "@apollo/client";
@@ -240,10 +240,30 @@ export default function Projects() {
         }
     }, [deleteError, deleteData])
 
+    function renderAddProject(): ReactNode {
+        return (
+            (newProject.editing) ? 
+            <DisplayCard className="w-3/5 mb-12">
+                <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
+                    <FormElement label="Name" value={newProject.name} type="text" onChange={(e) => handleNewProjectChange(e, "name")} />
+                    <FormElement label="Description" value={newProject.description} type="text" onChange={(e) => handleNewProjectChange(e, "description")} />
+                    <FormElement label="Tech Stack" value={displayTechStack(newProject.techStack)} placeholder="Enter separated by a comma and a whitespace ', '" type="text" onChange={(e) => handleNewProjectChange(e, "techStack")} />
+                    <FormElement label="GitHub Link" value={newProject.link || ""} type="text" onChange={(e) => handleNewProjectChange(e, "link")} />
+                    <FormElement label="Deployment Link" value={newProject.deployment || ""} type="text" onChange={(e) => handleNewProjectChange(e, "deployment")} />
+                    <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
+                        <Button className="bg-green-600 hover:bg-green-800" onClick={submitProjectDetails}>Submit</Button>
+                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddProjectClick("cancel")}>Cancel</Button>
+                    </div>
+                </form>
+            </DisplayCard> : 
+            <Button disabled={disableAddButton()} onClick={() => handleAddProjectClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Project</Button>
+        )
+    }
+
     const noProject: boolean = (projects.length === 0);
 
     return noProject ? (
-        <NotAvailable message="No project added" button="Add Project" />
+        <NotAvailable message="No project added" render={renderAddProject} />
     ) : (
         <MainDiv>
             {projects.map((project) => (
@@ -263,21 +283,7 @@ export default function Projects() {
                     </div>
                 </div>
             ))}
-            {(newProject.editing) ? 
-            <DisplayCard className="w-3/5 mb-12">
-                <form className="bg-inherit flex flex-col justify-center items-center w-full py-5">
-                    <FormElement label="Name" value={newProject.name} type="text" onChange={(e) => handleNewProjectChange(e, "name")} />
-                    <FormElement label="Description" value={newProject.description} type="text" onChange={(e) => handleNewProjectChange(e, "description")} />
-                    <FormElement label="Tech Stack" value={displayTechStack(newProject.techStack)} placeholder="Enter separated by a comma and a whitespace ', '" type="text" onChange={(e) => handleNewProjectChange(e, "techStack")} />
-                    <FormElement label="GitHub Link" value={newProject.link || ""} type="text" onChange={(e) => handleNewProjectChange(e, "link")} />
-                    <FormElement label="Deployment Link" value={newProject.deployment || ""} type="text" onChange={(e) => handleNewProjectChange(e, "deployment")} />
-                    <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                        <Button className="bg-green-600 hover:bg-green-800" onClick={submitProjectDetails}>Submit</Button>
-                        <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleAddProjectClick("cancel")}>Cancel</Button>
-                    </div>
-                </form>
-            </DisplayCard> : 
-            <Button disabled={disableAddButton()} onClick={() => handleAddProjectClick("none")} className="mt-0 mb-8 bg-blue-600 text-white text-lg font-semibold hover:bg-blue-800 shadow-xl transition-colors duration-50">Add Project</Button>}
+            {renderAddProject()}
         </MainDiv>
     )
 }
