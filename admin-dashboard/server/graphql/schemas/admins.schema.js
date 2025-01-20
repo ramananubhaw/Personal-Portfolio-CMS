@@ -35,12 +35,27 @@ export const adminTypeDefs = `
         loggedOut: Boolean!
     }
 
+    type CredentialChangeResponse {
+        message: String!
+        updated: Boolean!
+    }
+
     input AdminUpdateInput {
         name: String
         dob: String
         phone: String
         country: String
         resumeLink: String
+    }
+
+    input ChangeEmailInput {
+        newEmail: String!
+        password: String!
+    }
+
+    input ChangePasswordInput {
+        oldPassword: String!
+        newPassword: String!
     }
 
     extend type Query {
@@ -55,5 +70,7 @@ export const adminTypeDefs = `
         deleteAdmin(email: ID!): DeleteResponse
         adminLogin(input: AdminLoginInput!): LoginResponse
         adminLogout: LogoutResponse
+        changeEmail(input: ChangeEmailInput!): CredentialChangeResponse
+        changePassword(input: ChangePasswordInput!): CredentialChangeResponse
     }
 `;
