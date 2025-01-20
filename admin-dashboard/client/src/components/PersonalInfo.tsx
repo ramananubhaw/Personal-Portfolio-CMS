@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
-import { getPersonalInfo, updatePersonalInfo } from "../graphql/admin";
+import { getPersonalInfo, updatePersonalInfo, emailChange, passwordChange } from "../graphql/admin";
 import NotAvailable from "./NotAvailable";
 import FormElement from "./FormElement";
 import EditButton from "./buttons/EditButton";
@@ -128,6 +128,41 @@ export default function PersonalInfo() {
         }))
     }
 
+    const [ changeEmailMutate, { error: emailUpdateError, data: emailUpdateData } ] = useMutation(emailChange);
+
+    async function submitEmailChange() {
+        if (changeEmail.newEmail === personalInfo.email) {
+            alert("New Email can't be same as old Email.");
+            handleCredentialsChangeClick("email", "cancel");
+            return;
+        }
+
+        try {
+            await changeEmailMutate({ variables: { input: changeEmail } });
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        if (emailUpdateError) {
+            console.log(emailUpdateError);
+            handleCredentialsChangeClick("email", "cancel");
+            return;
+        }
+        if (emailUpdateData && emailUpdateData.changeEmail) {
+            console.log("updated is not yet decided.");
+            alert(emailUpdateData.changeEmail.message);
+            if (!emailUpdateData.changeEmail.updated) {
+                handleCredentialsChangeClick("email", "cancel");
+                return;
+            }
+            console.log("updated is true.")
+            sessionStorage.setItem("loggedIn", "false");
+        }
+    }, [emailUpdateData, emailUpdateError]);
+
     // change password
 
     const [changePassword, setChangePassword] = useState<{oldPassword: string, newPassword: string}> ({
@@ -140,6 +175,41 @@ export default function PersonalInfo() {
             ...prevState, [field]: e.target.value
         }))
     }
+
+    const [ changePasswordMutate, { error: passwordUpdateError, data: passwordUpdateData } ] = useMutation(passwordChange);
+
+    async function submitPasswordChange() {
+        if (changePassword.oldPassword === changePassword.newPassword) {
+            alert("New Password can't be same as old Password.");
+            handleCredentialsChangeClick("password", "cancel");
+            return;
+        }
+
+        try {
+            await changePasswordMutate({ variables: { input: changePassword } });
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        if (passwordUpdateError) {
+            console.log(passwordUpdateError);
+            handleCredentialsChangeClick("password", "cancel");
+            return;
+        }
+        if (passwordUpdateData && passwordUpdateData.changePassword) {
+            console.log("updated is not yet decided.");
+            alert(passwordUpdateData.changePassword.message);
+            if (!passwordUpdateData.changePassword.updated) {
+                handleCredentialsChangeClick("password", "cancel");
+                return;
+            }
+            console.log("updated is true.")
+            sessionStorage.setItem("loggedIn", "false");
+        }
+    }, [passwordUpdateData, passwordUpdateError]);
 
     // credentials change
 
@@ -176,7 +246,7 @@ export default function PersonalInfo() {
                         <FormElement label="New Email" value={changeEmail.newEmail} type="email" onChange={(e) => handleChangeEmail(e, "newEmail")} />
                         <FormElement label="Enter password" value={changeEmail.password} type="password" onChange={(e) => handleChangeEmail(e, "password")} />
                         <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                            <Button disabled={changeEmail.newEmail=="" || changeEmail.password==""} className="bg-green-600 hover:bg-green-800" onClick={() => handleCredentialsChangeClick("email", "submit")}>Submit</Button>
+                            <Button disabled={changeEmail.newEmail=="" || changeEmail.password==""} className="bg-green-600 hover:bg-green-800" onClick={submitEmailChange}>Submit</Button>
                             <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleCredentialsChangeClick("email", "cancel")}>Cancel</Button>
                         </div>
                     </form>
@@ -190,7 +260,7 @@ export default function PersonalInfo() {
                         <FormElement label="Old Password" value={changePassword.oldPassword} type="password" onChange={(e) => handleChangePassword(e, "oldPassword")} />
                         <FormElement label="New password" value={changePassword.newPassword} type="password" onChange={(e) => handleChangePassword(e, "newPassword")} />
                         <div className="bg-inherit mt-2 flex justify-center items-center gap-x-10 w-full">
-                            <Button disabled={changePassword.oldPassword=="" || changePassword.newPassword==""} className="bg-green-600 hover:bg-green-800" onClick={() => handleCredentialsChangeClick("password", "submit")}>Submit</Button>
+                            <Button disabled={changePassword.oldPassword=="" || changePassword.newPassword==""} className="bg-green-600 hover:bg-green-800" onClick={submitPasswordChange}>Submit</Button>
                             <Button className="bg-red-600 hover:bg-red-800" onClick={() => handleCredentialsChangeClick("password", "cancel")}>Cancel</Button>
                         </div>
                     </form>

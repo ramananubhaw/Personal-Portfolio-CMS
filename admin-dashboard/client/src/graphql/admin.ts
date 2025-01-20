@@ -60,3 +60,21 @@ export const adminLogout = gql`
         }
     }
 `;
+
+export const emailChange = gql`
+    mutation ChangeEmail($input: ChangeEmailInput!) {
+        changeEmail(input: $input) {
+            message
+            updated
+        }
+    }
+`;
+
+export const passwordChange = gql`
+    mutation ChangePassword($input: ChangePasswordInput!) {
+        changePassword(input: $input) {
+            message
+            updated
+        }
+    }
+`;

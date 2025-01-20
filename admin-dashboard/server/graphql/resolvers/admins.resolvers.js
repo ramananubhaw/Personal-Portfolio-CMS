@@ -15,7 +15,7 @@ export const adminResolvers = {
                 const email = req.admin.email;
                 const admin = await admins.findOne({email: email});
                 if (!admin) {
-                    throw new notFoundError;
+                    throw notFoundError;
                 }
                 return {
                     ...admin.toObject(), dob: convertToDate(admin.dob)
@@ -81,14 +81,6 @@ export const adminResolvers = {
                 if (!admin) {
                     throw notFoundError;
                 }
-                // for (const key in input) {
-                //     if (input[key] === admin[key]) {
-                //         delete input[key];
-                //     }
-                // }
-                // if (Object.keys(input).length === 0) {
-                //     throw noUpdateNeededError;
-                // }
                 const updatedAdmin = await admins.findOneAndUpdate({email: email}, input, {new: true});
                 return {
                     ...updatedAdmin.toObject(), dob: convertToDate(updatedAdmin.dob)
@@ -165,6 +157,59 @@ export const adminResolvers = {
                 // console.log(req.admin);
                 res.clearCookie("accessToken");
                 return {message: "Logged out", loggedOut: true};
+            }
+            catch (error) {
+                console.log(error.message);
+                throw error;
+            }
+        },
+
+        changeEmail: async (_, {input}, {req}) => {
+            authenticateToken(req);
+            try {
+                const email = req.admin.email;
+                if (email == input.newEmail) {
+                    return {message: "New Email can't be same as Old Email.", updated: false};
+                }
+                const admin = await admins.findOne({email: email}, {hashedPassword: 1});
+                if (!admin) {
+                    return {message: "Admin not found.", updated: false};
+                }
+                const valid = await verifyPassword(input.password, admin.hashedPassword);
+                if (!valid) {
+                    return {message: "Invalid password.", updated: false};
+                }
+                await admins.updateOne({email: email}, {$set: {email: input.newEmail}});
+                // console.log(updatedAdmin.email);
+                // res.clearCookie("accessToken");
+                return {message: "Email changed successfully! Logging out.", updated: true};
+            }
+            catch (error) {
+                console.log(error.message);
+                throw error;
+            }
+        },
+
+        changePassword: async (_, {input}, {req}) => {
+            authenticateToken(req);
+            try {
+                if (input.oldPassword == input.newPassword) {
+                    return {message: "New Password can't be same as Old Password.", updated: false};
+                }
+                const email = req.admin.email;
+                const admin = await admins.findOne({email: email}, {hashedPassword: 1});
+                if (!admin) {
+                    return {message: "Admin not found.", updated: false};
+                }
+                const valid = await verifyPassword(input.oldPassword, admin.hashedPassword);
+                if (!valid) {
+                    return {message: "Incorrect old password.", updated: false};
+                }
+                const newHashedPassword = await hashPassword(input.newPassword);
+                await admins.updateOne({email: email}, {$set: {hashedPassword: newHashedPassword}});
+                // console.log(input.newPassword);
+                // res.clearCookie("accessToken");
+                return {message: "Password changed successfully! Logging out.", updated: true};
             }
             catch (error) {
                 console.log(error.message);
